@@ -1,20 +1,21 @@
 package project;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.joda.time.DateTime;
 
 public class Post {
 
 	private List<Comment> comments;
 
 	private int score;
-	
+
 	private String date;
 
-	private LocalDateTime creationDate;
-	
-	private LocalDateTime lastMAJDate;
+	private DateTime creationDate;
+
+	private DateTime lastMAJDate;
 
 	private int id;
 
@@ -25,9 +26,11 @@ public class Post {
 	private String userName;
 
 	public Post(String timeStamp, int idPost, int userId, String nameUser) {
-		//annee,moi,jour,heure,minute,seconde,nanosecond
 		this.date = timeStamp;
-		//this.creationDate = new LocalDateTime(timeStamp.substring(beginIndex, endIndex),,,,);
+		this.creationDate = new DateTime(Integer.parseInt(timeStamp.substring(0, 4)),
+				Integer.parseInt(timeStamp.substring(5, 7)), Integer.parseInt(timeStamp.substring(8, 10)),
+				Integer.parseInt(timeStamp.substring(11, 13)), Integer.parseInt(timeStamp.substring(14, 16)),
+				Integer.parseInt(timeStamp.substring(17, 19)), Integer.parseInt(timeStamp.substring(20, 23)));
 		this.id = idPost;
 		this.userID = userId;
 		this.userName = nameUser;
@@ -57,7 +60,7 @@ public class Post {
 		}
 	}
 
-	public int calculScore(LocalDateTime date) {
+	public int calculScore(DateTime date) {
 		int scoreTotal = 0;
 		if (this.comments.size() != 0) {
 
@@ -68,7 +71,7 @@ public class Post {
 		return scoreTotal;
 	}
 
-	private void majScore(LocalDateTime localDateTime) {
+	private void majScore(DateTime localDateTime) {
 		// TODO Auto-generated method stub
 
 		// com.setLastMAJDate(currentDate);
@@ -102,7 +105,7 @@ public class Post {
 		return userName;
 	}
 
-	public LocalDateTime getLastMAJDate() {
+	public DateTime getLastMAJDate() {
 		return lastMAJDate;
 	}
 

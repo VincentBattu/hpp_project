@@ -1,14 +1,14 @@
 package project;
 
-import java.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 public class Comment {
 
 	private String date;
 
-	private LocalDateTime creationDate;
-	
-	private LocalDateTime lastMAJDate;
+	private DateTime creationDate;
+
+	private DateTime lastMAJDate;
 
 	private int commentId;
 
@@ -22,7 +22,10 @@ public class Comment {
 
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
 		this.date = timeStamp;
-		//this.creationDate = new LocalDateTime(timeStamp.substring(beginIndex, endIndex),,,,);
+		this.creationDate = new DateTime(Integer.parseInt(timeStamp.substring(0, 4)),
+				Integer.parseInt(timeStamp.substring(5, 7)), Integer.parseInt(timeStamp.substring(8, 10)),
+				Integer.parseInt(timeStamp.substring(11, 13)), Integer.parseInt(timeStamp.substring(14, 16)),
+				Integer.parseInt(timeStamp.substring(17, 19)), Integer.parseInt(timeStamp.substring(20, 23)));
 		this.commentId = idComment;
 		this.userId = userId;
 		this.userName = nameUser;
@@ -31,12 +34,13 @@ public class Comment {
 		if (commentedID == -1) {
 			this.postCommentedId = postID;
 		} else {
-			//TODO
-			// PROB = SI chaine de comment : a quel moment recup de l'id du post !!!!
+			// TODO
+			// PROB = SI chaine de comment : a quel moment recup de l'id du post
+			// !!!!
 		}
 	}
 
-	public LocalDateTime getLastMAJDate() {
+	public DateTime getLastMAJDate() {
 		return lastMAJDate;
 	}
 
@@ -64,13 +68,12 @@ public class Comment {
 		return date;
 	}
 
-	public LocalDateTime getcreationDate() {
+	public DateTime getcreationDate() {
 		return creationDate;
 	}
-	
-	public void setLastMAJDate(LocalDateTime lastMAJDate) {
+
+	public void setLastMAJDate(DateTime lastMAJDate) {
 		this.lastMAJDate = lastMAJDate;
 	}
-
 
 }
