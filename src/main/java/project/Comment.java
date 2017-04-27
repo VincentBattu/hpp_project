@@ -1,9 +1,14 @@
 package project;
 
+import java.time.LocalDateTime;
+
 public class Comment {
 
 	private String date;
-	private String lastMAJDate;
+
+	private LocalDateTime creationDate;
+	
+	private LocalDateTime lastMAJDate;
 
 	private int commentId;
 
@@ -19,11 +24,12 @@ public class Comment {
 
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
 		this.date = timeStamp;
+		//this.creationDate = new LocalDateTime(timeStamp.substring(beginIndex, endIndex),,,,);
 		this.commentId = idComment;
 		this.userId = userId;
 		this.userName = nameUser;
 		this.score = 10;
-		this.lastMAJDate = date;
+		this.lastMAJDate = this.creationDate;
 		if (commentedID == -1) {
 			this.postCommentedId = postID;
 		} else {
@@ -31,7 +37,7 @@ public class Comment {
 		}
 	}
 
-	public String getLastMAJDate() {
+	public LocalDateTime getLastMAJDate() {
 		return lastMAJDate;
 	}
 
@@ -59,8 +65,13 @@ public class Comment {
 		return date;
 	}
 
-	public void setLastMAJDate(String lastMAJDate) {
+	public LocalDateTime getcreationDate() {
+		return creationDate;
+	}
+	
+	public void setLastMAJDate(LocalDateTime lastMAJDate) {
 		this.lastMAJDate = lastMAJDate;
 	}
+
 
 }
