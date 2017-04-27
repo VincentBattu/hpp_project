@@ -20,8 +20,6 @@ public class Comment {
 
 	private int postCommentedId;
 
-	// PROB = SI chaine de comment : a quel moment recup de l'id du post !!!!
-
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
 		this.date = timeStamp;
 		//this.creationDate = new LocalDateTime(timeStamp.substring(beginIndex, endIndex),,,,);
@@ -34,6 +32,7 @@ public class Comment {
 			this.postCommentedId = postID;
 		} else {
 			//TODO
+			// PROB = SI chaine de comment : a quel moment recup de l'id du post !!!!
 		}
 	}
 
