@@ -1,6 +1,8 @@
 package project;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class Comment {
 
@@ -19,13 +21,12 @@ public class Comment {
 	private int score;
 
 	private int postCommentedId;
+	
+	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
 		this.date = timeStamp;
-		this.creationDate = new DateTime(Integer.parseInt(timeStamp.substring(0, 4)),
-				Integer.parseInt(timeStamp.substring(5, 7)), Integer.parseInt(timeStamp.substring(8, 10)),
-				Integer.parseInt(timeStamp.substring(11, 13)), Integer.parseInt(timeStamp.substring(14, 16)),
-				Integer.parseInt(timeStamp.substring(17, 19)), Integer.parseInt(timeStamp.substring(20, 23)));
+		this.creationDate = formatter.parseDateTime(timeStamp);
 		this.commentId = idComment;
 		this.userId = userId;
 		this.userName = nameUser;
@@ -38,6 +39,12 @@ public class Comment {
 			// PROB = SI chaine de comment : a quel moment recup de l'id du post
 			// !!!!
 		}
+	}
+	
+	public void updateTime(DateTime currentTime){
+		
+		
+		this.lastMAJDate = currentTime;
 	}
 
 	public DateTime getLastMAJDate() {

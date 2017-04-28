@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class Post {
 
@@ -24,13 +26,12 @@ public class Post {
 	private int nbCommenter;
 
 	private String userName;
+	
+	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
 	public Post(String timeStamp, int idPost, int userId, String nameUser) {
 		this.date = timeStamp;
-		this.creationDate = new DateTime(Integer.parseInt(timeStamp.substring(0, 4)),
-				Integer.parseInt(timeStamp.substring(5, 7)), Integer.parseInt(timeStamp.substring(8, 10)),
-				Integer.parseInt(timeStamp.substring(11, 13)), Integer.parseInt(timeStamp.substring(14, 16)),
-				Integer.parseInt(timeStamp.substring(17, 19)), Integer.parseInt(timeStamp.substring(20, 23)));
+		this.creationDate = formatter.parseDateTime(timeStamp);
 		this.id = idPost;
 		this.userID = userId;
 		this.userName = nameUser;
@@ -63,7 +64,7 @@ public class Post {
 	public int calculScore(DateTime date) {
 		int scoreTotal = 0;
 		if (this.comments.size() != 0) {
-
+			//TODO
 		} else {
 			majScore(date);
 			scoreTotal = this.score;
@@ -74,7 +75,9 @@ public class Post {
 	private void majScore(DateTime localDateTime) {
 		// TODO Auto-generated method stub
 
+		//if(this.comments.size() != 0) {
 		// com.setLastMAJDate(currentDate);
+		//} else {
 	}
 
 	public List<Comment> getComments() {
