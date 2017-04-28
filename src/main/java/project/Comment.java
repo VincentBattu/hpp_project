@@ -21,13 +21,11 @@ public class Comment {
 
 	private int score;
 
-	private int postCommentedId;
-
 	private int nbDays = 0;
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
-	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
+	public Comment(String timeStamp, int idComment, int userId, String nameUser) {
 		this.date = timeStamp;
 		this.creationDate = formatter.parseDateTime(timeStamp);
 		this.commentId = idComment;
@@ -35,13 +33,6 @@ public class Comment {
 		this.userName = nameUser;
 		this.score = 10;
 		this.lastMAJDate = this.creationDate;
-		if (commentedID == -1) {
-			this.postCommentedId = postID;
-		} else {
-			// TODO
-			// PROB = SI chaine de comment : a quel moment recup de l'id du post
-			// !!!!
-		}
 	}
 
 	public void updateTime(DateTime currentTime) {
@@ -72,10 +63,6 @@ public class Comment {
 
 	public int getScore() {
 		return score;
-	}
-
-	public int getPostCommentedId() {
-		return postCommentedId;
 	}
 
 	public int getUserId() {

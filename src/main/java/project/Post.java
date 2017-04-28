@@ -76,7 +76,8 @@ public class Post {
 		}
 		majScore(date);
 		scoreTotal += this.score;
-
+		if (scoreTotal == 0)
+			isDead = true;
 		return scoreTotal;
 	}
 
@@ -90,8 +91,6 @@ public class Post {
 			nbDays += temp;
 
 		}
-		if (nbDays == 10)
-			isDead = true;
 		this.lastMAJDate = localDateTime;
 
 	}
