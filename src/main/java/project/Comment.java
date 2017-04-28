@@ -1,6 +1,7 @@
 package project;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -21,6 +22,8 @@ public class Comment {
 	private int score;
 
 	private int postCommentedId;
+	
+	private  int nbDays=0;
 	
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
@@ -43,10 +46,18 @@ public class Comment {
 	
 	public void updateTime(DateTime currentTime){
 		
+		Period timeOfLife = new Period(creationDate,currentTime);
 		
+		if(timeOfLife.getDays()-nbDays>=1){
+			int temp = timeOfLife.getDays()-nbDays;
+			score -= temp;
+			nbDays += temp;
+			 
+		 }
 		this.lastMAJDate = currentTime;
+		
 	}
-
+	
 	public DateTime getLastMAJDate() {
 		return lastMAJDate;
 	}
