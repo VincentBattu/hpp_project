@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -76,17 +77,15 @@ public class Post {
 		}
 		majScore(date);
 		scoreTotal += this.score;
-		if (scoreTotal == 0)
+		if (scoreTotal <= 0)
 			isDead = true;
 		return scoreTotal;
 	}
 
 	private void majScore(DateTime localDateTime) {
 
-		Period timeOfLife = new Period(creationDate, localDateTime);
-
-		if (timeOfLife.getDays() - nbDays >= 1) {
-			int temp = timeOfLife.getDays() - nbDays;
+		if (Days.daysBetween(creationDate, localDateTime).getDays() - nbDays >= 1 && score>0) {
+			int temp = Days.daysBetween(creationDate, localDateTime).getDays() - nbDays;
 			score -= temp;
 			nbDays += temp;
 

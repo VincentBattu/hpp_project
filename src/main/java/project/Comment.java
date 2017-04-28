@@ -1,6 +1,7 @@
 package project;
 
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -37,10 +38,8 @@ public class Comment {
 
 	public void updateTime(DateTime currentTime) {
 
-		Period timeOfLife = new Period(creationDate, currentTime);
-
-		if (timeOfLife.getDays() - nbDays >= 1) {
-			int temp = timeOfLife.getDays() - nbDays;
+		if (Days.daysBetween(creationDate, currentTime).getDays() - nbDays >= 1 && score>0) {
+			int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
 			score -= temp;
 			nbDays += temp;
 

@@ -26,7 +26,7 @@ public class Main {
 		//System.out.println(post1.calculScore(creationDate));
 			
 		post1.addComment(com1);
-		System.out.println(post1.calculScore(com1.getcreationDate()));
+		System.out.println(post1.getScore());
 		
 	}
 }
