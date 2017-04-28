@@ -64,19 +64,21 @@ public class Post {
 	public int calculScore(DateTime date) {
 		int scoreTotal = 0;
 		if (this.comments.size() != 0) {
-			//TODO
-		} else {
-			majScore(date);
-			scoreTotal = this.score;
+			for (int i = 0; i < this.comments.size(); i++){
+				this.comments.get(i).updateTime(date);
+				scoreTotal+= this.comments.get(i).getScore();
+			}
 		}
+			majScore(date);
+			scoreTotal += this.score;
+		
 		return scoreTotal;
 	}
 
 	private void majScore(DateTime localDateTime) {
 		// TODO Auto-generated method stub
-
 		//if(this.comments.size() != 0) {
-		// com.setLastMAJDate(currentDate);
+			//Comment.setLastMAJDate(creationDate);
 		//} else {
 	}
 

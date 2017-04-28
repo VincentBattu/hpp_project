@@ -1,6 +1,7 @@
 package project;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -74,6 +75,7 @@ public class Comment {
 	public String getDate() {
 		return date;
 	}
+	
 
 	public DateTime getcreationDate() {
 		return creationDate;
