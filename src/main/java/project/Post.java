@@ -27,9 +27,11 @@ public class Post {
 	private int nbCommenter;
 
 	private String userName;
-	
-	private  int nbDays=0;
-	
+
+	private boolean isDead = false;
+
+	private int nbDays = 0;
+
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
 	public Post(String timeStamp, int idPost, int userId, String nameUser) {
@@ -67,30 +69,31 @@ public class Post {
 	public int calculScore(DateTime date) {
 		int scoreTotal = 0;
 		if (this.comments.size() != 0) {
-			for (int i = 0; i < this.comments.size(); i++){
+			for (int i = 0; i < this.comments.size(); i++) {
 				this.comments.get(i).updateTime(date);
-				scoreTotal+= this.comments.get(i).getScore();
+				scoreTotal += this.comments.get(i).getScore();
 			}
 		}
-			majScore(date);
-			scoreTotal += this.score;
-		
+		majScore(date);
+		scoreTotal += this.score;
+
 		return scoreTotal;
 	}
 
 	private void majScore(DateTime localDateTime) {
 
-			
-		Period timeOfLife = new Period(creationDate,localDateTime);
-		
-		if(timeOfLife.getDays()-nbDays>=1){
-			int temp = timeOfLife.getDays()-nbDays;
+		Period timeOfLife = new Period(creationDate, localDateTime);
+
+		if (timeOfLife.getDays() - nbDays >= 1) {
+			int temp = timeOfLife.getDays() - nbDays;
 			score -= temp;
 			nbDays += temp;
-			 
-		 }
+
+		}
+		if (nbDays == 10)
+			isDead = true;
 		this.lastMAJDate = localDateTime;
-		
+
 	}
 
 	public List<Comment> getComments() {
