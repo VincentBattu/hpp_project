@@ -48,23 +48,23 @@ public class Post {
 	}
 
 	public void addComment(Comment com) {
-		this.comments.add(com);
-		this.score = calculScore(com.getcreationDate());
 		if (this.comments.size() == 0) {
 			this.nbCommenter += 1;
 		} else {
 			int idUserComment = com.getUserId();
 			boolean exist = false;
-			for (int i = 0; i < this.comments.size(); i++) {
+			outerloop: for (int i = 0; i < this.comments.size(); i++) {
 				if (idUserComment == this.comments.get(i).getUserId()) {
 					exist = true;
-					break;
+					break outerloop;
 				}
 
 			}
 			if (!exist)
 				this.nbCommenter += 1;
 		}
+		this.comments.add(com);
+		this.score = calculScore(com.getcreationDate());
 	}
 
 	public int calculScore(DateTime date) {
@@ -77,15 +77,19 @@ public class Post {
 		}
 		majScore(date);
 		scoreTotal += this.score;
-		if (scoreTotal <= 0)
+		if (scoreTotal <= 0){
 			isDead = true;
+			scoreTotal=0;
+		}
+			
+		System.out.println(scoreTotal);
 		return scoreTotal;
 	}
 
 	private void majScore(DateTime localDateTime) {
 
-		if (Days.daysBetween(creationDate, localDateTime).getDays() - nbDays >= 1 && score>0) {
-			int temp = Days.daysBetween(creationDate, localDateTime).getDays() - nbDays;
+		int temp = Days.daysBetween(creationDate, localDateTime).getDays() - nbDays;
+		if (temp >= 1) {
 			score -= temp;
 			nbDays += temp;
 

@@ -38,11 +38,14 @@ public class Comment {
 
 	public void updateTime(DateTime currentTime) {
 
-		if (Days.daysBetween(creationDate, currentTime).getDays() - nbDays >= 1 && score>0) {
-			int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
+		int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
+		if (temp >= 1 && score >= temp) {
 			score -= temp;
 			nbDays += temp;
 
+		} else {
+			if (score > temp)
+				score = 0;
 		}
 		this.lastMAJDate = currentTime;
 
