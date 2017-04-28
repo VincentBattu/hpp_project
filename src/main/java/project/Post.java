@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -26,6 +27,8 @@ public class Post {
 	private int nbCommenter;
 
 	private String userName;
+	
+	private  int nbDays=0;
 	
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
@@ -76,10 +79,18 @@ public class Post {
 	}
 
 	private void majScore(DateTime localDateTime) {
-		// TODO Auto-generated method stub
-		//if(this.comments.size() != 0) {
-			//Comment.setLastMAJDate(creationDate);
-		//} else {
+
+			
+		Period timeOfLife = new Period(creationDate,localDateTime);
+		
+		if(timeOfLife.getDays()-nbDays>=1){
+			int temp = timeOfLife.getDays()-nbDays;
+			score -= temp;
+			nbDays += temp;
+			 
+		 }
+		this.lastMAJDate = localDateTime;
+		
 	}
 
 	public List<Comment> getComments() {

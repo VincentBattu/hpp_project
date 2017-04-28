@@ -23,6 +23,8 @@ public class Comment {
 
 	private int postCommentedId;
 	
+	private  int nbDays=0;
+	
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int postID, int commentedID) {
@@ -44,10 +46,18 @@ public class Comment {
 	
 	public void updateTime(DateTime currentTime){
 		
+		Period timeOfLife = new Period(creationDate,currentTime);
 		
+		if(timeOfLife.getDays()-nbDays>=1){
+			int temp = timeOfLife.getDays()-nbDays;
+			score -= temp;
+			nbDays += temp;
+			 
+		 }
 		this.lastMAJDate = currentTime;
+		
 	}
-
+	
 	public DateTime getLastMAJDate() {
 		return lastMAJDate;
 	}
