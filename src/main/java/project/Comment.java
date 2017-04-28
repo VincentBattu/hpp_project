@@ -2,7 +2,6 @@ package project;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -39,12 +38,12 @@ public class Comment {
 	public void updateTime(DateTime currentTime) {
 
 		int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
-		if (temp >= 1 && score >= temp) {
+		if (temp >= 1 && nbDays <= temp) {
 			score -= temp;
 			nbDays += temp;
 
 		} else {
-			if (score > temp)
+			if (nbDays < temp)
 				score = 0;
 		}
 		this.lastMAJDate = currentTime;

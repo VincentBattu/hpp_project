@@ -29,8 +29,8 @@ public class Main {
 		post1.addComment(com2);
 		post1.addComment(com3);
 		post1.addComment(com4);
-		System.out.println(post1.getScore());
-		 System.out.println(post1.getNbCommenter());
+		System.out.println(" Score total: " + post1.getScoreTotal());
+		// System.out.println("Commenteurs: " + post1.getNbCommenter());
 		
 	}
 }

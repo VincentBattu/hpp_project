@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -32,6 +31,8 @@ public class Post {
 	private boolean isDead = false;
 
 	private int nbDays = 0;
+
+	private int scoreTotal = 0;
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
@@ -64,11 +65,11 @@ public class Post {
 				this.nbCommenter += 1;
 		}
 		this.comments.add(com);
-		this.score = calculScore(com.getcreationDate());
+		calculScore(com.getcreationDate());
 	}
 
-	public int calculScore(DateTime date) {
-		int scoreTotal = 0;
+	public void calculScore(DateTime date) {
+		scoreTotal = 0;
 		if (this.comments.size() != 0) {
 			for (int i = 0; i < this.comments.size(); i++) {
 				this.comments.get(i).updateTime(date);
@@ -77,22 +78,19 @@ public class Post {
 		}
 		majScore(date);
 		scoreTotal += this.score;
-		if (scoreTotal <= 0){
+		if (scoreTotal <= 0) {
 			isDead = true;
-			scoreTotal=0;
+			scoreTotal = 0;
 		}
-			
-		System.out.println(scoreTotal);
-		return scoreTotal;
 	}
 
 	private void majScore(DateTime localDateTime) {
 
-		int temp = Days.daysBetween(creationDate, localDateTime).getDays() - nbDays;
+		int temp = Days.daysBetween(this.creationDate, localDateTime).getDays() - nbDays;
+		System.out.println("temp: " + temp);
 		if (temp >= 1) {
-			score -= temp;
+			this.score -= temp;
 			nbDays += temp;
-
 		}
 		this.lastMAJDate = localDateTime;
 
@@ -128,6 +126,14 @@ public class Post {
 
 	public DateTime getLastMAJDate() {
 		return lastMAJDate;
+	}
+
+	public boolean isDead() {
+		return isDead;
+	}
+
+	public int getScoreTotal() {
+		return scoreTotal;
 	}
 
 }
