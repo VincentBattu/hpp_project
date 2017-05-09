@@ -87,5 +87,13 @@ public class Comment {
 	public void setLastMAJDate(DateTime lastMAJDate) {
 		this.lastMAJDate = lastMAJDate;
 	}
+	
+	public int getLinkCom() {
+		return linkCom;
+	}
+
+	public int getLinkPost() {
+		return linkPost;
+	}
 
 }
