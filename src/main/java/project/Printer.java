@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -25,6 +26,7 @@ public class Printer implements Runnable {
 		
 		File file =  new File("result.txt") ;
 		OutputStream os = null;
+		String Newligne=System.getProperty("line.separator"); 
 		
 		try {
 			 os = new FileOutputStream(file);
@@ -32,8 +34,8 @@ public class Printer implements Runnable {
 			
 			while(!bufferQueue.isEmpty()){
 				try {
-					dos.writeChars(bufferQueue.take());
-					dos.writeChars("\n");
+					dos.write(bufferQueue.take().getBytes(Charset.forName("UTF-8")));
+					dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
 					System.out.println("WRITTEN");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -57,17 +59,5 @@ public class Printer implements Runnable {
 		}
 		
 	}
-	
-	public static void main(String[] args) {
-	
-		BlockingQueue<String> bufferQueue = new ArrayBlockingQueue<>(5);
-		bufferQueue.add("Coucou AZERTY");
-		bufferQueue.add("LaRobeDeDELPHINE");
-		
-		Printer pr = new Printer(bufferQueue);
-		Thread t = new Thread(pr);
-		t.start();
-	}
-	
 
 }
