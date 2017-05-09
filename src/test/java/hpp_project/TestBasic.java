@@ -13,6 +13,7 @@ import project.Post;
 
 public class TestBasic {
 	private Post post1 = new Post("2010-02-01T05:12:32.921+0000", 1039993, 3981,"Lei Liu");
+	Comment com5 = new Comment("2010-02-17T13:24:08.859+0000", 702750, 3825, "great",-1,-1); 
 	@Before
 	public void executedBeforeEach() {
 
@@ -22,7 +23,7 @@ public class TestBasic {
 	Comment com2 = new Comment("2010-02-12T18:19:57.527+0000", 702748, 143, "cool",-1,-1);
 	Comment com3 = new Comment("2010-02-13T13:18:00.586+0000", 702749, 3825, "great",-1,-1);
 	Comment com4 = new Comment("2010-02-17T13:24:08.859+0000", 702750, 3825, "great",-1,-1); 
-	//Post post1 = new Post("2010-02-01T05:12:32.921+0000", 1039993, 3981,"Lei Liu");
+	
 	post1.addComment(com1);
 	post1.addComment(com2);
 	post1.addComment(com3);
@@ -42,6 +43,19 @@ public class TestBasic {
 			int NbCommenteurAttendu=3;
 			
 			assertEquals(NbCommenteurObtenu,NbCommenteurAttendu);
+	}
+	@Test
+	public void testMajdate() throws IOException{
+		DateTime DateMAJobtenu=post1.getLastMAJDate();
+		DateTime DateMAJAttendu=new DateTime(2010,02,17,13,24,8,859);
+		assertEquals(DateMAJobtenu,DateMAJAttendu);
+		
+	}
+	@Test
+	public void testDateCrea()throws IOException{
+		DateTime datecreaObtenu=com5.getcreationDate();
+		DateTime datecreaAttendu= new DateTime(2010,02,17,13,24,8,859);
+		assertEquals(datecreaObtenu,datecreaAttendu);
 	}
 			
 }
