@@ -135,5 +135,9 @@ public class Post {
 	public int getScoreTotal() {
 		return scoreTotal;
 	}
+	
+	public DateTime getCreationDate(){
+		return creationDate;
+	}
 
 }

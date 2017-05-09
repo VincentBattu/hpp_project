@@ -29,18 +29,19 @@ public class CommentParser implements Runnable {
 	public void run() {
 		String[] elements = null;
 		try {
-			line = br.readLine();
-			while (line != null) {
+			while ((line = br.readLine()) != null) {
 				elements = line.split(SEPARATOR);
 				if (elements.length != 1) {
 					try {
+						int userId;
 						if(elements[5].equals(""))
 							elements[5]="-1";
-						if(elements[6].equals(""))
-							elements[6]="-1";
+						if(elements.length == 6)
+							userId = -1;
+						else
+							userId = Integer.parseInt(elements[6]);
 						queue.put(new Comment(elements[0], Integer.parseInt(elements[1]), Integer.parseInt(elements[2]),
-								elements[4],Integer.parseInt(elements[5]),Integer.parseInt(elements[6])));
-						System.out.println(elements[0] + " " + Thread.currentThread().getName());
+								elements[4],Integer.parseInt(elements[5]),userId));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

@@ -36,7 +36,6 @@ public class PostParser implements Runnable {
 				try {
 					queue.put(new Post(elements[0],Integer.parseInt(elements[1]),
 							Integer.parseInt(elements[2]),elements[4]));
-					System.out.println(elements[0] + " " +Thread.currentThread().getName());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
