@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 public class Manager {
 
 	public PostParser postParser;
@@ -16,6 +12,7 @@ public class Manager {
 
 	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(20);
 	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(20);
+	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(20);
 
 	public Scheduler scheduler;
 
@@ -24,12 +21,13 @@ public class Manager {
 	public Manager(String postsPath, String commentsPath) {
 		postParser = new PostParser(postsPath, postQueue);
 		commentParser = new CommentParser(commentsPath, commentQueue);
-		scheduler = new Scheduler(postQueue, commentQueue);
+		scheduler = new Scheduler(postQueue, commentQueue, resultQueue);
 		alivePosts = new ArrayList<>();
 	}
 
 	public static void main(String[] args) {
-		Manager manager = new Manager("data/Tests/Q1BigTest/posts.dat", "data/Tests/Q1BigTest/comments.dat");
+
+		Manager manager = new Manager("data/Tests/Q1Basic/posts.dat", "data/Tests/Q1Basic/comments.dat");
 		Thread t = new Thread(manager.postParser);
 		Thread t2 = new Thread(manager.commentParser);
 		Thread t3 = new Thread(manager.scheduler);
@@ -47,7 +45,5 @@ public class Manager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
-
 }

@@ -87,7 +87,6 @@ public class Post {
 	private void majScore(DateTime localDateTime) {
 
 		int temp = Days.daysBetween(this.creationDate, localDateTime).getDays() - nbDays;
-		System.out.println("temp: " + temp);
 		if (temp >= 1) {
 			this.score -= temp;
 			nbDays += temp;
