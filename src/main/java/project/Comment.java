@@ -22,10 +22,14 @@ public class Comment {
 	private int score;
 
 	private int nbDays = 0;
+	
+	private int linkCom = -1;
+	
+	private int linkPost = -1;
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
-	public Comment(String timeStamp, int idComment, int userId, String nameUser) {
+	public Comment(String timeStamp, int idComment, int userId, String nameUser, int linkCom, int linkPost) {
 		this.date = timeStamp;
 		this.creationDate = formatter.parseDateTime(timeStamp);
 		this.commentId = idComment;
@@ -33,6 +37,8 @@ public class Comment {
 		this.userName = nameUser;
 		this.score = 10;
 		this.lastMAJDate = this.creationDate;
+		this.linkCom = linkCom;
+		this.linkPost = linkPost;
 	}
 
 	public void updateTime(DateTime currentTime) {
