@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.Period;
+import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Post {
+public class Post implements Comparable<Post>{
 
 	private List<Comment> comments;
 
@@ -138,5 +140,30 @@ public class Post {
 	public DateTime getCreationDate(){
 		return creationDate;
 	}
+
+
+	@Override
+	public int compareTo(Post post) {
+		if (this.getScoreTotal() > post.getScoreTotal()){
+			return 1;
+		} else if (this.getScoreTotal() < post.getScoreTotal()){
+			return -1;
+		} else {
+			if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() < 0){
+				return -1;
+			} else if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() > 0){
+				return 1;
+			} else {
+				// TODO implémenter avec les commentaires		
+				
+				
+				return 0;
+			}
+		}
+	}
+
+
+	
+	
 
 }

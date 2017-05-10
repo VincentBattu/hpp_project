@@ -27,7 +27,7 @@ public class Manager {
 
 	public static void main(String[] args) {
 
-		Manager manager = new Manager("data/Tests/Q1Basic/posts.dat", "data/Tests/Q1Basic/comments.dat");
+		Manager manager = new Manager("data/Tests/Q1BigTest/posts.dat", "data/Tests/Q1BigTest/comments.dat");
 		Thread t = new Thread(manager.postParser);
 		Thread t2 = new Thread(manager.commentParser);
 		Thread t3 = new Thread(manager.scheduler);

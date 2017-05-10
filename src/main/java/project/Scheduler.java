@@ -2,14 +2,13 @@ package project;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 
 import org.joda.time.DateTime;
@@ -20,8 +19,15 @@ public class Scheduler implements Runnable {
 	private BlockingQueue<Comment> commentQueue;
 
 	private Map<Integer, Post> postsStillAlive = new HashMap<>();
-	private Map<Integer, Integer> scores = new HashMap<>();
 
+	/**
+	 * Map qui associe les scores avec tous les posts qui ont ce score
+	 */
+	private Map<Integer, List<Integer>> scores = new TreeMap<>(Collections.reverseOrder());
+	
+	/**
+	 * Liste des trois meilleurs posts
+	 */
 	private List<Post> bestPosts = new ArrayList<>(3);
 
 	/**
@@ -64,18 +70,38 @@ public class Scheduler implements Runnable {
 			}
 
 			// Si on n'est pas à la fin d'une des deux queues.
+			List<Integer> tempIdsBestPost = new ArrayList<>();
+			for (Post post : bestPosts){
+				tempIdsBestPost.add(post.getId());
+			}
+			
 			if (!postEnd && !commentEnd) {
 				lastPostDate = lastPost.getCreationDate();
 				lastCommentDate = lastComment.getcreationDate();
 
 				if (lastCommentDate.isAfter(lastPostDate)) {
 					try {
+						if (lastPost != PostParser.POISON_PILL) {
+							addPost(lastPost);
+							updateScores(lastPost.getLastMAJDate());
+							if (!compare(tempIdsBestPost, bestPosts)){
+								System.out.println(formatResult(lastPost.getDate()));
+							}
+							
+						}
 						lastPost = postQueue.take();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				} else {
 					try {
+						if (lastComment != CommentParser.POISON_PILL) {
+							addComment(lastComment);
+							updateScores(lastComment.getLastMAJDate());
+							if (!compare(tempIdsBestPost, bestPosts)){
+								System.out.println(formatResult(lastPost.getDate()));
+							}
+						}
 						lastComment = commentQueue.take();
 
 					} catch (InterruptedException e) {
@@ -89,10 +115,9 @@ public class Scheduler implements Runnable {
 				try {
 					if (lastPost != PostParser.POISON_PILL) {
 						addPost(lastPost);
-						update(lastPost.getLastMAJDate());
-						System.out.println("Changement");
-						for (Post post : bestPosts) {
-							System.out.println(post.getDate());
+						updateScores(lastPost.getLastMAJDate());
+						if (!compare(tempIdsBestPost, bestPosts)){
+							System.out.println(formatResult(lastPost.getDate()));
 						}
 
 					}
@@ -105,6 +130,13 @@ public class Scheduler implements Runnable {
 				// comment
 			else if (!commentEnd) {
 				try {
+					if (lastComment != CommentParser.POISON_PILL) {
+						addComment(lastComment);
+						updateScores(lastComment.getLastMAJDate());
+						if (!compare(tempIdsBestPost, bestPosts)){
+							System.out.println(formatResult(lastPost.getDate()));
+						}
+					}
 					lastComment = commentQueue.take();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -116,25 +148,47 @@ public class Scheduler implements Runnable {
 	/**
 	 * Ajoute un commentaire
 	 */
-	private void addComment() {
+	private void addComment(Comment comment) {
 
+		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
+			Post post = entry.getValue();
+
+			if (comment.getLinkPost() == -1) {
+				List<Comment> comments = post.getComments();
+				for (int i = 0; i < comments.size(); i++) {
+					if (comments.get(i).getCommentId() == comment.getLinkCom()) {
+						post.addComment(comment);
+						break;
+					}
+				}
+			} // Si le commentaire est directement relié à un post
+			else {
+				if (post.getId() == comment.getLinkPost()) {
+					// Si on trouve on post qui a été commenté, on ajoute le
+					// commentaire
+					// et on sort de la boucle
+					post.addComment(comment);
+					break;
+
+				}
+			}
+
+		}
 	}
 
 	/**
 	 * Ajoute un post à la liste des posts en vie
 	 */
 	private void addPost(Post post) {
-
 		this.postsStillAlive.put(post.getId(), post);
-		scores.put(post.getId(), post.getScoreTotal());
-
 	}
 
 	/**
 	 * Mets à jour les map postStillAlive, scores, et bestPosts à la date donnée
 	 */
-	private void update(DateTime date) {
-		// Mise à jour de la map idPost => POST
+	private void updateScores(DateTime date) {
+		// Mise à jour de la map idPost => POST (calcul de leur score et
+		// suppression des posts morts)
 		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
 			Integer key = entry.getKey();
 			Post post = entry.getValue();
@@ -147,47 +201,105 @@ public class Scheduler implements Runnable {
 			}
 		}
 
-		// Mise à jour de la map idPost => Score
-		for (Entry<Integer, Integer> entry : scores.entrySet()) {
+		// Mise à jour de la map score => [idPost1, idPost2]
+		scores.clear();
+		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
 			Integer key = entry.getKey();
 			Integer score = postsStillAlive.get(key).getScoreTotal();
-			scores.put(key, score);
+
+			if (scores.containsKey(score)) {
+				List<Integer> idsPost = scores.get(score);
+				idsPost.add(key);
+				scores.put(score, idsPost);
+			} else {
+				List<Integer> idsPost = new ArrayList<>();
+				idsPost.add(key);
+				scores.put(score, idsPost);
+			}
+
 		}
-		sortMap(scores);
+		updateBestScores();
 
 	}
 
 	/**
 	 * Actualise la liste des trois meilleurs post
 	 */
-	public void sortMap(Map<Integer, Integer> unsortedMap) {
-		List<Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(unsortedMap.entrySet());
-
-		// sorting the list with a comparator
-		Collections.sort(list, new Comparator<Entry<Integer, Integer>>() {
-			public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
-				return (o1.getValue()).compareTo(o2.getValue()) * (-1);
-			}
-		});
-
-		// convert sortedMap back to Map
-		Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
-		for (Entry<Integer, Integer> entry : list) {
-			sortedMap.put(entry.getKey(), entry.getValue());
-		}
-
-		Set<Integer> ids = sortedMap.keySet();
-		int cpt = 0;
+	public void updateBestScores() {
+		int nbPostsTaken = 0;
 		bestPosts.clear();
-		for (Integer id : ids) {
-			if (cpt < 3) {
-				bestPosts.add(postsStillAlive.get(id));
-				cpt++;
+		// On parcourt la map des scores
+		outerloop:
+		for (Entry<Integer, List<Integer>> entry : scores.entrySet()) {
+			List<Integer> idsPost = entry.getValue();
+			if (idsPost.size() > 1) {
+				
+				for (int i = 0; i < idsPost.size()-1; i++) {
+					
+					Post currentPost = postsStillAlive.get(idsPost.get(i));
+					Post nextPost = postsStillAlive.get(idsPost.get(i+1));
+					
+					if(currentPost.compareTo(nextPost)>0){
+						bestPosts.add(currentPost);
+						nbPostsTaken ++;
+						if (nbPostsTaken >= 3) break outerloop;
+					}else{
+						bestPosts.add(nextPost);
+						nbPostsTaken ++;
+						if (nbPostsTaken >= 3)  break outerloop;
+						bestPosts.add(currentPost);
+						nbPostsTaken ++;
+						if (nbPostsTaken >= 3)  break outerloop;
+						i++;
+					}
+				}
 			} else {
-				break;
+				bestPosts.add(postsStillAlive.get(idsPost.get(0)));
+				nbPostsTaken++;
+				if (nbPostsTaken >= 3) break outerloop;
 			}
 		}
 
+	}
+
+	public String formatResult(String date) {
+		StringBuilder strBuilder = new StringBuilder();
+		strBuilder.append(date);
+		for (Post post : bestPosts) {
+			strBuilder.append(',');
+			strBuilder.append(post.getId());
+			strBuilder.append(',');
+			strBuilder.append(post.getUserName());
+			strBuilder.append(',');
+			strBuilder.append(post.getScoreTotal());
+			strBuilder.append(',');
+			strBuilder.append(post.getNbCommenter());
+		}
+		for (int i = 0; i < 3 - bestPosts.size(); i++) {
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+		}
+		return strBuilder.toString();
+	}
+	
+	private boolean compare(List<Integer> l1, List<Post> l2){
+		if (l1.size() == l2.size()){
+			for (int i =0 ; i <l1.size(); i++){
+				if (l1.get(i) != l2.get(i).getId()){
+					return false;
+				}
+			}
+			return true;
+		} else{
+			return false;
+		}
+		
 	}
 
 }
