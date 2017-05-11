@@ -6,13 +6,13 @@ import java.util.concurrent.BlockingQueue;
 public class Manager {
 
 	public PostParser postParser;
-	private CommentParser commentParser;
+	public CommentParser commentParser;
 
 	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(20);
 	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(20);
 	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(20);
 	
-	private Printer printer;
+	public Printer printer;
 
 	public Scheduler scheduler;
 

@@ -11,6 +11,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import project.Manager;
+
 public class TestQBig {
 
 	@SuppressWarnings("resource")
@@ -19,8 +21,32 @@ public class TestQBig {
 		BufferedReader buff=null;
 		BufferedReader buff1 =null;
 		
+		Manager manager = new Manager("data/Tests/Q1BigTest/posts.dat", "data/Tests/Q1BigTest"
+				+ "/comments.dat", "data/Tests/Q1BigTest/result.txt");
+		Thread t = new Thread(manager.postParser);
+		Thread t2 = new Thread(manager.commentParser);
+		Thread t3 = new Thread(manager.scheduler);
+		Thread t4 = new Thread(manager.printer);
+		t.setName("postParser");
+		t.start();
+		t2.setName("commentParser");
+		t2.start();
+		t3.setName("Scheduler");
+		t3.start();
+		t4.setName("printer");
+		t4.start();
 		try {
-			buff=new BufferedReader(new FileReader("_expectedQ1BigTest.txt"));
+			t.join();
+			t2.join();
+			t3.join();
+			t4.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			buff=new BufferedReader(new FileReader("data/Tests/Q1BigTest/_expectedQ1.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -28,7 +54,7 @@ public class TestQBig {
 		
 		
 		try {
-		buff1=new BufferedReader(new FileReader("_Q1BigTestBidon.txt"));
+		buff1=new BufferedReader(new FileReader("data/Tests/Q1BigTest/result.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
