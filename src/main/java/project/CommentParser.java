@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
+import org.slf4j.LoggerFactory;
+
 public class CommentParser implements Runnable {
 
 	private static String SEPARATOR = "\\|";
@@ -15,7 +17,7 @@ public class CommentParser implements Runnable {
 	private BlockingQueue<Comment> queue;
 
 	public static final Comment POISON_PILL = new Comment("1124-02-02T19:53:43.226+0000", 0, 0, "",-1,-1);
-
+	
 	public CommentParser(String path, BlockingQueue<Comment> queue) {
 		this.queue = queue;
 		try {
@@ -28,6 +30,7 @@ public class CommentParser implements Runnable {
 	@Override
 	public void run() {
 		String[] elements = null;
+	
 		try {
 			while ((line = br.readLine()) != null) {
 				elements = line.split(SEPARATOR);

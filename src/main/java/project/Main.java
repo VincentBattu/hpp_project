@@ -8,6 +8,9 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Period;
 import org.joda.time.Seconds;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
 
 public class Main {
 
@@ -34,6 +37,7 @@ public class Main {
 		// System.out.println("Commenteurs: " + post1.getNbCommenter());
 		
 		*/
+	
 	}
 }
  
