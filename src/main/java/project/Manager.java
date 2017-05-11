@@ -1,7 +1,5 @@
 package project;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -29,7 +27,7 @@ public class Manager {
 	public static void main(String[] args) {
 
 		
-		Manager manager = new Manager("data/Tests/Q1BigTest/posts.dat", "data/Tests/Q1BigTest"
+		Manager manager = new Manager("data/Tests/Q1Basic2/posts.dat", "data/Tests/Q1Basic2"
 				+ "/comments.dat", "result.txt");
 		Thread t = new Thread(manager.postParser);
 		Thread t2 = new Thread(manager.commentParser);

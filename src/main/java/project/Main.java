@@ -1,16 +1,9 @@
 package project;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Period;
-import org.joda.time.Seconds;
-import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Logger;
 
 public class Main {
 

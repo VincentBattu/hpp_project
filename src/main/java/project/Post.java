@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.Period;
-import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 

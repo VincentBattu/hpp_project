@@ -101,7 +101,7 @@ public class Scheduler implements Runnable {
 							addComment(lastComment);
 							updateScores(lastComment.getLastMAJDate());
 							if (!compare(tempIdsBestPost, bestPosts)){
-								resultsQueue.put(formatResult(lastPost.getDate()));
+								resultsQueue.put(formatResult(lastComment.getDate()));
 							}
 						}
 						lastComment = commentQueue.take();
@@ -136,7 +136,7 @@ public class Scheduler implements Runnable {
 						addComment(lastComment);
 						updateScores(lastComment.getLastMAJDate());
 						if (!compare(tempIdsBestPost, bestPosts)){
-							resultsQueue.put(formatResult(lastPost.getDate()));
+							resultsQueue.put(formatResult(lastComment.getDate()));
 						}
 					}
 					lastComment = commentQueue.take();
