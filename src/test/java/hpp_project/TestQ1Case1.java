@@ -3,20 +3,15 @@ package hpp_project;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 
 import org.junit.Test;
 
 import project.Manager;
 
-public class TestQBasic {
+public class TestQ1Case1 {
 
 	@SuppressWarnings("resource")
 	@Test
@@ -24,11 +19,11 @@ public class TestQBasic {
 		BufferedReader buff=null;
 		BufferedReader buff1 =null;
 		
-		Manager manager = new Manager("data/Tests/Q1Basic2/posts.dat", "data/Tests/Q1Basic2"
-				+ "/comments.dat", "data/Tests/Q1Basic2/result.txt");
+		Manager manager = new Manager("data/Tests/Q1Case1/posts.dat", "data/Tests/Q1Case1"
+				+ "/comments.dat", "data/Tests/Q1Case1/result.txt");		
 		
 		try {
-			buff=new BufferedReader(new FileReader("data/Tests/Q1Basic2/_expectedQ1.txt"));
+			buff=new BufferedReader(new FileReader("data/Tests/Q1Case1/_expectedQ1.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -36,7 +31,7 @@ public class TestQBasic {
 		
 		
 		try {
-		buff1=new BufferedReader(new FileReader("data/Tests/Q1Basic2/result.txt"));
+		buff1=new BufferedReader(new FileReader("data/Tests/Q1Case1/result.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

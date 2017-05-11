@@ -5,34 +5,27 @@ import java.util.concurrent.BlockingQueue;
 
 public class Manager {
 
-	public PostParser postParser;
-	public CommentParser commentParser;
+	private PostParser postParser;
+	private CommentParser commentParser;
+	private Printer printer;
+	private Scheduler scheduler;
 
 	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(20);
 	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(20);
 	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(20);
 	
-	public Printer printer;
-
-	public Scheduler scheduler;
+	
 
 
-	public Manager(String postsPath, String commentsPath, String path) {
+	public Manager(String postsPath, String commentsPath, String resultPath) {
 		postParser = new PostParser(postsPath, postQueue);
 		commentParser = new CommentParser(commentsPath, commentQueue);
 		scheduler = new Scheduler(postQueue, commentQueue, resultQueue);
-		printer = new Printer(resultQueue,path);
-	}
-
-	public static void main(String[] args) {
-
-		
-		Manager manager = new Manager("data/Tests/Q1Basic2/posts.dat", "data/Tests/Q1Basic2"
-				+ "/comments.dat", "result.txt");
-		Thread t = new Thread(manager.postParser);
-		Thread t2 = new Thread(manager.commentParser);
-		Thread t3 = new Thread(manager.scheduler);
-		Thread t4 = new Thread(manager.printer);
+		printer = new Printer(resultQueue,resultPath);
+		Thread t = new Thread(postParser);
+		Thread t2 = new Thread(commentParser);
+		Thread t3 = new Thread(scheduler);
+		Thread t4 = new Thread(printer);
 		t.setName("postParser");
 		t.start();
 		t2.setName("commentParser");
@@ -50,4 +43,5 @@ public class Manager {
 			e.printStackTrace();
 		}
 	}
+
 }

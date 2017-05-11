@@ -22,28 +22,7 @@ public class TestQBig {
 		BufferedReader buff1 =null;
 		
 		Manager manager = new Manager("data/Tests/Q1BigTest/posts.dat", "data/Tests/Q1BigTest"
-				+ "/comments.dat", "data/Tests/Q1BigTest/result.txt");
-		Thread t = new Thread(manager.postParser);
-		Thread t2 = new Thread(manager.commentParser);
-		Thread t3 = new Thread(manager.scheduler);
-		Thread t4 = new Thread(manager.printer);
-		t.setName("postParser");
-		t.start();
-		t2.setName("commentParser");
-		t2.start();
-		t3.setName("Scheduler");
-		t3.start();
-		t4.setName("printer");
-		t4.start();
-		try {
-			t.join();
-			t2.join();
-			t3.join();
-			t4.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
+				+ "/comments.dat", "data/Tests/Q1BigTest/result.txt");		
 		
 		try {
 			buff=new BufferedReader(new FileReader("data/Tests/Q1BigTest/_expectedQ1.txt"));
