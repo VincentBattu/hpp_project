@@ -34,6 +34,8 @@ public class Scheduler implements Runnable {
 	 * Résultats envoyés au printer
 	 */
 	private BlockingQueue<String> resultsQueue;
+	
+	public static final String POISON_PILL = "ça par exemple";
 
 	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
 			BlockingQueue<String> resultsQueue) {
@@ -85,7 +87,7 @@ public class Scheduler implements Runnable {
 							addPost(lastPost);
 							updateScores(lastPost.getLastMAJDate());
 							if (!compare(tempIdsBestPost, bestPosts)){
-								System.out.println(formatResult(lastPost.getDate()));
+								resultsQueue.put(formatResult(lastPost.getDate()));
 							}
 							
 						}
@@ -99,7 +101,7 @@ public class Scheduler implements Runnable {
 							addComment(lastComment);
 							updateScores(lastComment.getLastMAJDate());
 							if (!compare(tempIdsBestPost, bestPosts)){
-								System.out.println(formatResult(lastPost.getDate()));
+								resultsQueue.put(formatResult(lastPost.getDate()));
 							}
 						}
 						lastComment = commentQueue.take();
@@ -117,7 +119,7 @@ public class Scheduler implements Runnable {
 						addPost(lastPost);
 						updateScores(lastPost.getLastMAJDate());
 						if (!compare(tempIdsBestPost, bestPosts)){
-							System.out.println(formatResult(lastPost.getDate()));
+							resultsQueue.put(formatResult(lastPost.getDate()));
 						}
 
 					}
@@ -134,7 +136,7 @@ public class Scheduler implements Runnable {
 						addComment(lastComment);
 						updateScores(lastComment.getLastMAJDate());
 						if (!compare(tempIdsBestPost, bestPosts)){
-							System.out.println(formatResult(lastPost.getDate()));
+							resultsQueue.put(formatResult(lastPost.getDate()));
 						}
 					}
 					lastComment = commentQueue.take();
@@ -142,6 +144,11 @@ public class Scheduler implements Runnable {
 					e.printStackTrace();
 				}
 			}
+		}
+		try {
+			resultsQueue.put(POISON_PILL);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -7,16 +7,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class Printer implements Runnable {
 	
 	private BlockingQueue<String> bufferQueue;
+	/**
+	 * Chemin du fichier de sortie
+	 */
+	private String path;
 
-	public Printer(BlockingQueue<String> bufferQueue) {
-		super();
+	public Printer(BlockingQueue<String> bufferQueue, String path) {
+		this.path = path;
 		this.bufferQueue = bufferQueue;
 	}
 
@@ -24,7 +26,7 @@ public class Printer implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		
-		File file =  new File("result.txt") ;
+		File file =  new File(path) ;
 		OutputStream os = null;
 		String Newligne=System.getProperty("line.separator"); 
 		
@@ -32,18 +34,22 @@ public class Printer implements Runnable {
 			 os = new FileOutputStream(file);
 			DataOutputStream dos =  new DataOutputStream(os) ; 
 			
-			while(!bufferQueue.isEmpty()){
-				try {
-					dos.write(bufferQueue.take().getBytes(Charset.forName("UTF-8")));
-					dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
-					System.out.println("WRITTEN");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			try {
+				String line = bufferQueue.take();
+				while(line != Scheduler.POISON_PILL){
+					try {
+						dos.write(line.getBytes(Charset.forName("UTF-8")));
+						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
+						line = bufferQueue.take();
+						System.out.println("WRITTEN");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
