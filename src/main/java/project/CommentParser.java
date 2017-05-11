@@ -5,9 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
-
-import org.slf4j.LoggerFactory;
-
 public class CommentParser implements Runnable {
 
 	private static String SEPARATOR = "\\|";

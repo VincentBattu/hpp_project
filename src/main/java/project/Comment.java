@@ -44,14 +44,13 @@ public class Comment {
 	public void updateTime(DateTime currentTime) {
 
 		int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
-		if (temp >= 1 && nbDays <= temp) {
+		if (temp >= 1) {
 			score -= temp;
 			nbDays += temp;
 
-		} else {
-			if (nbDays < temp)
-				score = 0;
-		}
+		} 
+		if (score < 0)
+			score = 0;
 		this.lastMAJDate = currentTime;
 
 	}

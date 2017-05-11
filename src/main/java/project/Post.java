@@ -141,6 +141,12 @@ public class Post implements Comparable<Post>{
 		return creationDate;
 	}
 
+	
+
+	@Override
+	public String toString() {
+		return "Post [id=" + id + ", userName=" + userName + ", scoreTotal=" + scoreTotal + "]";
+	}
 
 	@Override
 	public int compareTo(Post post) {
@@ -161,6 +167,8 @@ public class Post implements Comparable<Post>{
 			}
 		}
 	}
+	
+	
 
 
 	

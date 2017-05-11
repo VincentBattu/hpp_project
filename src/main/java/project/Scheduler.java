@@ -23,7 +23,7 @@ public class Scheduler implements Runnable {
 	/**
 	 * Map qui associe les scores avec tous les posts qui ont ce score
 	 */
-	private Map<Integer, List<Integer>> scores = new TreeMap<>(Collections.reverseOrder());
+	private Map<Integer, List<Post>> scores = new TreeMap<>(Collections.reverseOrder());
 	
 	/**
 	 * Liste des trois meilleurs posts
@@ -208,13 +208,15 @@ public class Scheduler implements Runnable {
 			Integer score = postsStillAlive.get(key).getScoreTotal();
 
 			if (scores.containsKey(score)) {
-				List<Integer> idsPost = scores.get(score);
-				idsPost.add(key);
-				scores.put(score, idsPost);
+				List<Post> posts = scores.get(score);
+				posts.add(postsStillAlive.get(key));
+				Collections.sort(posts);
+				Collections.reverse(posts);
+				scores.put(score, posts);
 			} else {
-				List<Integer> idsPost = new ArrayList<>();
-				idsPost.add(key);
-				scores.put(score, idsPost);
+				List<Post> posts = new ArrayList<>();
+				posts.add(postsStillAlive.get(key));
+				scores.put(score, posts);
 			}
 
 		}
@@ -229,34 +231,19 @@ public class Scheduler implements Runnable {
 		int nbPostsTaken = 0;
 		bestPosts.clear();
 		// On parcourt la map des scores
-		outerloop:
-		for (Entry<Integer, List<Integer>> entry : scores.entrySet()) {
-			List<Integer> idsPost = entry.getValue();
-			if (idsPost.size() > 1) {
+		for (Entry<Integer, List<Post>> entry : scores.entrySet()) {
+			List<Post> posts = entry.getValue();
+			if (posts.size() > 1) {
 				
-				for (int i = 0; i < idsPost.size()-1; i++) {
-					
-					Post currentPost = postsStillAlive.get(idsPost.get(i));
-					Post nextPost = postsStillAlive.get(idsPost.get(i+1));
-					
-					if(currentPost.compareTo(nextPost)>0){
-						bestPosts.add(currentPost);
-						nbPostsTaken ++;
-						if (nbPostsTaken >= 3) break outerloop;
-					}else{
-						bestPosts.add(nextPost);
-						nbPostsTaken ++;
-						if (nbPostsTaken >= 3)  break outerloop;
-						bestPosts.add(currentPost);
-						nbPostsTaken ++;
-						if (nbPostsTaken >= 3)  break outerloop;
-						i++;
-					}
+				for (int i = 0; i < posts.size(); i++) {
+					bestPosts.add(posts.get(i));
+					nbPostsTaken++;
+					if (nbPostsTaken >= 3) return;						
 				}
 			} else {
-				bestPosts.add(postsStillAlive.get(idsPost.get(0)));
+				bestPosts.add(posts.get(0));
 				nbPostsTaken++;
-				if (nbPostsTaken >= 3) break outerloop;
+				if (nbPostsTaken >= 3) return;
 			}
 		}
 
@@ -289,6 +276,7 @@ public class Scheduler implements Runnable {
 	}
 	
 	private boolean compare(List<Integer> l1, List<Post> l2){
+
 		if (l1.size() == l2.size()){
 			for (int i =0 ; i <l1.size(); i++){
 				if (l1.get(i) != l2.get(i).getId()){
