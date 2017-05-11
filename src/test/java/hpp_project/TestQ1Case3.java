@@ -11,7 +11,11 @@ import org.junit.Test;
 
 import project.Manager;
 
-public class TestQ1Case1 {
+/*Test ne passe pas mais normal avec notre choix de remplissage
+ * du top 3 lors d'arrivée à la même date pour deux postes différentss
+ */
+
+public class TestQ1Case3 {
 
 	@SuppressWarnings("resource")
 	@Test
@@ -19,18 +23,18 @@ public class TestQ1Case1 {
 		BufferedReader buff = null;
 		BufferedReader buff1 = null;
 
-		new Manager("data/Tests/Q1Case1/posts.dat", "data/Tests/Q1Case1" + "/comments.dat",
-				"data/Tests/Q1Case1/result.txt");
+		new Manager("data/Tests/Q1Case3/posts.dat", "data/Tests/Q1Case3" + "/comments.dat",
+				"data/Tests/Q1Case3/result.txt");
 
 		try {
-			buff = new BufferedReader(new FileReader("data/Tests/Q1Case1/_expectedQ1.txt"));
+			buff = new BufferedReader(new FileReader("data/Tests/Q1Case3/_expectedQ1.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		try {
-			buff1 = new BufferedReader(new FileReader("data/Tests/Q1Case1/result.txt"));
+			buff1 = new BufferedReader(new FileReader("data/Tests/Q1Case3/result.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,5 +62,4 @@ public class TestQ1Case1 {
 			}
 		}
 	}
-
 }

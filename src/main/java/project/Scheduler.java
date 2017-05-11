@@ -196,6 +196,7 @@ public class Scheduler implements Runnable {
 	private void updateScores(DateTime date) {
 		// Mise à jour de la map idPost => POST (calcul de leur score et
 		// suppression des posts morts)
+		List<Integer> idsPostDead = new ArrayList<Integer>();
 		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
 			Integer key = entry.getKey();
 			Post post = entry.getValue();
@@ -204,8 +205,11 @@ public class Scheduler implements Runnable {
 			post.calculScore(date);
 			// Si le poste est mort, on le supprime de la map
 			if (post.isDead()) {
-				postsStillAlive.remove(key);
+				idsPostDead.add(key);
 			}
+		}
+		for(int i=0 ; i<idsPostDead.size();i++){
+			postsStillAlive.remove(idsPostDead.get(i));
 		}
 
 		// Mise à jour de la map score => [idPost1, idPost2]
