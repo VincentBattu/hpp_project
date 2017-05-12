@@ -5,6 +5,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.tz.Provider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,6 +16,9 @@ import project.Comment;
 import project.Post;
 
 public class TestBasic {
+	
+	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
+	
 	private Post post1 = new Post("2010-02-01T05:12:32.921+0000", 529360, 2608, "Wei Zhu");
 	/*
 	 * private Post post2 = new Post("2010-02-09T16:21:23.008+0000", 1076792,
@@ -54,10 +61,9 @@ public class TestBasic {
 		 * "great",-1,2608); Comment com4 = new
 		 * Comment("2010-02-17T13:24:08.859+0000", 702750, 3825,
 		 * "great",-1,2608); Comment com5 = new
-		 * Comment("2010-02-17T13:24:08.859+0000", 702750, 3825,
-		 * "great",-1,2608); Comment com6 = new
-		 * Comment("2010-02-17T13:24:08.859+0000", 702750, 3825,
-		 * "great",-1,2608); Comment com7 = new
+		 * Comment("2010-02-17T13:24:08.859+0000", 702750, 3825, "great", -1,
+		 * 2608); Comment com6 = new Comment("2010-02-17T13:24:08.859+0000",
+		 * 702750, 3825, "great",-1,2608); Comment com7 = new
 		 * Comment("2010-02-17T13:24:08.859+0000", 702750, 3825,
 		 * "great",-1,2608);
 		 */
@@ -72,7 +78,7 @@ public class TestBasic {
 	public void testScore() throws IOException {
 
 		int ScoreObtenu = post1.getScoreTotal();
-		int ScoreAttendu = 18;
+		int ScoreAttendu = 24;
 		assertEquals(ScoreAttendu, ScoreObtenu);
 	}
 
@@ -87,7 +93,8 @@ public class TestBasic {
 	@Test
 	public void testMajdate() throws IOException {
 		DateTime DateMAJobtenu = post1.getLastMAJDate();
-		DateTime DateMAJAttendu = new DateTime(2010, 02, 17, 13, 24, 8, 859);
+		//DateTime DateMAJAttendu = new DateTime(2010, 02, 17, 13, 24, 8, 859);
+		DateTime DateMAJAttendu = formatter.withZone(DateTimeZone.UTC).parseDateTime("2010-02-17T13:24:08.859+0000");
 		assertEquals(DateMAJAttendu, DateMAJobtenu);
 
 	}
@@ -95,7 +102,8 @@ public class TestBasic {
 	@Test
 	public void testDateCrea() throws IOException {
 		DateTime datecreaObtenu = com5.getcreationDate();
-		DateTime datecreaAttendu = new DateTime(2010, 02, 17, 13, 24, 8, 859);
+		//DateTime datecreaAttendu = new DateTime(2010, 02, 17, 13, 24, 8, 859);
+		DateTime datecreaAttendu = formatter.withZone(DateTimeZone.UTC).parseDateTime("2010-02-17T13:24:08.859+0000");
 		assertEquals(datecreaAttendu, datecreaObtenu);
 	}
 

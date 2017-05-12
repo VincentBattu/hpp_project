@@ -9,7 +9,7 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Post implements Comparable<Post>{
+public class Post implements Comparable<Post> {
 
 	private List<Comment> comments;
 
@@ -92,6 +92,9 @@ public class Post implements Comparable<Post>{
 			this.score -= temp;
 			nbDays += temp;
 		}
+		if (this.score < 0) {
+			this.score = 0;
+		}
 		this.lastMAJDate = localDateTime;
 
 	}
@@ -135,12 +138,10 @@ public class Post implements Comparable<Post>{
 	public int getScoreTotal() {
 		return scoreTotal;
 	}
-	
-	public DateTime getCreationDate(){
+
+	public DateTime getCreationDate() {
 		return creationDate;
 	}
-
-	
 
 	@Override
 	public String toString() {
@@ -149,28 +150,21 @@ public class Post implements Comparable<Post>{
 
 	@Override
 	public int compareTo(Post post) {
-		if (this.getScoreTotal() > post.getScoreTotal()){
+		if (this.getScoreTotal() > post.getScoreTotal()) {
 			return 1;
-		} else if (this.getScoreTotal() < post.getScoreTotal()){
+		} else if (this.getScoreTotal() < post.getScoreTotal()) {
 			return -1;
 		} else {
-			if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() < 0){
+			if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() < 0) {
 				return -1;
-			} else if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() > 0){
+			} else if (this.getCreationDate().getMillis() - post.getCreationDate().getMillis() > 0) {
 				return 1;
 			} else {
-				// TODO implémenter avec les commentaires		
-				
-				
+				// TODO implémenter avec les commentaires
+
 				return 0;
 			}
 		}
 	}
-	
-	
-
-
-	
-	
 
 }
