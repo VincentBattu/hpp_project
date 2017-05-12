@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -38,7 +39,7 @@ public class Post implements Comparable<Post>{
 
 	public Post(String timeStamp, int idPost, int userId, String nameUser) {
 		this.date = timeStamp;
-		this.creationDate = formatter.parseDateTime(timeStamp);
+		this.creationDate = formatter.withZone(DateTimeZone.UTC).parseDateTime(timeStamp);
 		this.id = idPost;
 		this.userID = userId;
 		this.userName = nameUser;

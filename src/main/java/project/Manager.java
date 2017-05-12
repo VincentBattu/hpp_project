@@ -43,5 +43,9 @@ public class Manager {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void main(String[] args) {
+		new Manager("data/posts.dat","data/comments.dat","data/test.txt");
+	}
 
 }

@@ -1,6 +1,7 @@
 package project;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -31,7 +32,7 @@ public class Comment {
 
 	public Comment(String timeStamp, int idComment, int userId, String nameUser, int linkCom, int linkPost) {
 		this.date = timeStamp;
-		this.creationDate = formatter.parseDateTime(timeStamp);
+		this.creationDate = formatter.withZone(DateTimeZone.UTC).parseDateTime(timeStamp);
 		this.commentId = idComment;
 		this.userId = userId;
 		this.userName = nameUser;
