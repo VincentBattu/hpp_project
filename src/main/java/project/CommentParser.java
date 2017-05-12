@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class CommentParser implements Runnable {
 
 	private static String SEPARATOR = "\\|";
@@ -15,20 +18,23 @@ public class CommentParser implements Runnable {
 
 	public static final Comment POISON_PILL = new Comment("1124-02-02T19:53:43.226+0000", 0, 0, "",-1,-1);
 	
+	Logger logger = LoggerFactory.getLogger(CommentParser.class);
+	
 	public CommentParser(String path, BlockingQueue<Comment> queue) {
 		this.queue = queue;
 		try {
 			br = new BufferedReader(new FileReader(path));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
 	@Override
 	public void run() {
 		String[] elements = null;
-	
+		
 		try {
+			logger.debug("Reading comment.dat");
 			while ((line = br.readLine()) != null) {
 				elements = line.split(SEPARATOR);
 				if (elements.length != 1) {
@@ -43,7 +49,7 @@ public class CommentParser implements Runnable {
 						queue.put(new Comment(elements[0], Long.parseLong(elements[1]),  Long.parseLong(elements[2]),
 								elements[4],Long.parseLong(elements[5]),userId));
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 
@@ -51,12 +57,11 @@ public class CommentParser implements Runnable {
 			try {
 				queue.put(POISON_PILL);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
-
 }

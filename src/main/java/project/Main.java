@@ -1,15 +1,13 @@
 package project;
 
-import java.io.FileNotFoundException;
-
 import org.joda.time.DateTime;
-import org.openjdk.jmh.annotations.Benchmark;
 
 public class Main {
 
 	static DateTime creationDate = new DateTime(2010, 03, 01, 20, 15, 10);
 	static DateTime date = new DateTime(2010, 03, 03, 20, 30, 10);
-	@Benchmark
+	
+
 public static void main(String[] args) {
 
 		Post post1 = new Post("2010-02-01T05:12:32.921+0000", 1039993, 3981, "Lei Liu");

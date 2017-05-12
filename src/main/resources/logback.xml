@@ -4,14 +4,13 @@
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>Logs.txt</file>
-        <append>true</append>
+        <append>false</append>
         <encoder>
             <pattern>%date - [%level] - from %logger in %thread %n%message%n%xException%n</pattern>
         </encoder>
     </appender>
 
     <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
 
