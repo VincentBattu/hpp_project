@@ -21,9 +21,9 @@ public class Post implements Comparable<Post>{
 
 	private DateTime lastMAJDate;
 
-	private int id;
+	private long id;
 
-	private int userID;
+	private long userID;
 
 	private int nbCommenter;
 
@@ -37,7 +37,7 @@ public class Post implements Comparable<Post>{
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
-	public Post(String timeStamp, int idPost, int userId, String nameUser) {
+	public Post(String timeStamp, long idPost, long userId, String nameUser) {
 		this.date = timeStamp;
 		this.creationDate = formatter.withZone(DateTimeZone.UTC).parseDateTime(timeStamp);
 		this.id = idPost;
@@ -53,7 +53,7 @@ public class Post implements Comparable<Post>{
 		if (this.comments.size() == 0) {
 			this.nbCommenter += 1;
 		} else {
-			int idUserComment = com.getUserId();
+			long idUserComment = com.getUserId();
 			boolean exist = false;
 			outerloop: for (int i = 0; i < this.comments.size(); i++) {
 				if (idUserComment == this.comments.get(i).getUserId()) {
@@ -108,11 +108,11 @@ public class Post implements Comparable<Post>{
 		return date;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public int getUserID() {
+	public long getUserID() {
 		return userID;
 	}
 

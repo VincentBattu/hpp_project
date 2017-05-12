@@ -14,9 +14,9 @@ public class Comment {
 
 	private DateTime lastMAJDate;
 
-	private int commentId;
+	private long commentId;
 
-	private int userId;
+	private long userId;
 
 	private String userName;
 
@@ -24,13 +24,13 @@ public class Comment {
 
 	private int nbDays = 0;
 	
-	private int linkCom = -1;
+	private long linkCom = -1;
 	
-	private int linkPost = -1;
+	private long linkPost = -1;
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
-	public Comment(String timeStamp, int idComment, int userId, String nameUser, int linkCom, int linkPost) {
+	public Comment(String timeStamp, long idComment, long userId, String nameUser, long linkCom, long linkPost) {
 		this.date = timeStamp;
 		this.creationDate = formatter.withZone(DateTimeZone.UTC).parseDateTime(timeStamp);
 		this.commentId = idComment;
@@ -60,7 +60,7 @@ public class Comment {
 		return lastMAJDate;
 	}
 
-	public int getCommentId() {
+	public long getCommentId() {
 		return commentId;
 	}
 
@@ -72,7 +72,7 @@ public class Comment {
 		return score;
 	}
 
-	public int getUserId() {
+	public long getUserId() {
 		return userId;
 	}
 
@@ -88,11 +88,11 @@ public class Comment {
 		this.lastMAJDate = lastMAJDate;
 	}
 	
-	public int getLinkCom() {
+	public long getLinkCom() {
 		return linkCom;
 	}
 
-	public int getLinkPost() {
+	public long getLinkPost() {
 		return linkPost;
 	}
 

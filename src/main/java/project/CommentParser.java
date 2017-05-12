@@ -33,15 +33,15 @@ public class CommentParser implements Runnable {
 				elements = line.split(SEPARATOR);
 				if (elements.length != 1) {
 					try {
-						int userId;
+						long userId;
 						if(elements[5].equals(""))
 							elements[5]="-1";
 						if(elements.length == 6)
 							userId = -1;
 						else
-							userId = Integer.parseInt(elements[6]);
-						queue.put(new Comment(elements[0], Integer.parseInt(elements[1]), Integer.parseInt(elements[2]),
-								elements[4],Integer.parseInt(elements[5]),userId));
+							userId = Long.parseLong(elements[6]);
+						queue.put(new Comment(elements[0], Long.parseLong(elements[1]),  Long.parseLong(elements[2]),
+								elements[4],Long.parseLong(elements[5]),userId));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

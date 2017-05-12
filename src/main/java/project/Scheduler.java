@@ -18,7 +18,7 @@ public class Scheduler implements Runnable {
 	private BlockingQueue<Post> postQueue;
 	private BlockingQueue<Comment> commentQueue;
 
-	private Map<Integer, Post> postsStillAlive = new HashMap<>();
+	private Map<Long, Post> postsStillAlive = new HashMap<>();
 
 	/**
 	 * Map qui associe les scores avec tous les posts qui ont ce score
@@ -72,7 +72,7 @@ public class Scheduler implements Runnable {
 			}
 
 			// Si on n'est pas à la fin d'une des deux queues.
-			List<Integer> tempIdsBestPost = new ArrayList<>();
+			List<Long> tempIdsBestPost = new ArrayList<>();
 			for (Post post : bestPosts){
 				tempIdsBestPost.add(post.getId());
 			}
@@ -157,7 +157,7 @@ public class Scheduler implements Runnable {
 	 */
 	private void addComment(Comment comment) {
 
-		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
+		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
 			Post post = entry.getValue();
 
 			if (comment.getLinkPost() == -1) {
@@ -196,9 +196,9 @@ public class Scheduler implements Runnable {
 	private void updateScores(DateTime date) {
 		// Mise à jour de la map idPost => POST (calcul de leur score et
 		// suppression des posts morts)
-		List<Integer> idsPostDead = new ArrayList<Integer>();
-		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
-			Integer key = entry.getKey();
+		List<Long> idsPostDead = new ArrayList<>();
+		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
+			Long key = entry.getKey();
 			Post post = entry.getValue();
 
 			// On met à jour le score total du post
@@ -214,8 +214,8 @@ public class Scheduler implements Runnable {
 
 		// Mise à jour de la map score => [idPost1, idPost2]
 		scores.clear();
-		for (Entry<Integer, Post> entry : postsStillAlive.entrySet()) {
-			Integer key = entry.getKey();
+		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
+			Long key = entry.getKey();
 			Integer score = postsStillAlive.get(key).getScoreTotal();
 
 			if (scores.containsKey(score)) {
@@ -286,7 +286,7 @@ public class Scheduler implements Runnable {
 		return strBuilder.toString();
 	}
 	
-	private boolean compare(List<Integer> l1, List<Post> l2){
+	private boolean compare(List<Long> l1, List<Post> l2){
 
 		if (l1.size() == l2.size()){
 			for (int i =0 ; i <l1.size(); i++){

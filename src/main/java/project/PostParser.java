@@ -34,8 +34,8 @@ public class PostParser implements Runnable {
 			while ((line = br.readLine()) != null){
 				elements = line.split(SEPARATOR);
 				try {
-					queue.put(new Post(elements[0],Integer.parseInt(elements[1]),
-							Integer.parseInt(elements[2]),elements[4]));
+					queue.put(new Post(elements[0],Long.parseLong(elements[1]),
+							Long.parseLong(elements[2]),elements[4]));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

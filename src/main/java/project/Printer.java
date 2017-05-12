@@ -41,7 +41,6 @@ public class Printer implements Runnable {
 						dos.write(line.getBytes(Charset.forName("UTF-8")));
 						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
 						line = bufferQueue.take();
-						System.out.println("WRITTEN");
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
