@@ -24,7 +24,7 @@ public class Scheduler implements Runnable {
 	 * Map qui associe les scores avec tous les posts qui ont ce score
 	 */
 	private Map<Integer, List<Post>> scores = new TreeMap<>(Collections.reverseOrder());
-	
+
 	/**
 	 * Liste des trois meilleurs posts
 	 */
@@ -34,7 +34,7 @@ public class Scheduler implements Runnable {
 	 * Résultats envoyés au printer
 	 */
 	private BlockingQueue<String> resultsQueue;
-	
+
 	public static final String POISON_PILL = "ça par exemple";
 
 	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
@@ -73,10 +73,10 @@ public class Scheduler implements Runnable {
 
 			// Si on n'est pas à la fin d'une des deux queues.
 			List<Long> tempIdsBestPost = new ArrayList<>();
-			for (Post post : bestPosts){
+			for (Post post : bestPosts) {
 				tempIdsBestPost.add(post.getId());
 			}
-			
+
 			if (!postEnd && !commentEnd) {
 				lastPostDate = lastPost.getCreationDate();
 				lastCommentDate = lastComment.getcreationDate();
@@ -86,10 +86,11 @@ public class Scheduler implements Runnable {
 						if (lastPost != PostParser.POISON_PILL) {
 							addPost(lastPost);
 							updateScores(lastPost.getLastMAJDate());
-							if (!compare(tempIdsBestPost, bestPosts)){
+							updateBestScores();
+							if (!compare(tempIdsBestPost, bestPosts)) {
 								resultsQueue.put(formatResult(lastPost.getDate()));
 							}
-							
+
 						}
 						lastPost = postQueue.take();
 					} catch (InterruptedException e) {
@@ -100,7 +101,8 @@ public class Scheduler implements Runnable {
 						if (lastComment != CommentParser.POISON_PILL) {
 							addComment(lastComment);
 							updateScores(lastComment.getLastMAJDate());
-							if (!compare(tempIdsBestPost, bestPosts)){
+							updateBestScores();
+							if (!compare(tempIdsBestPost, bestPosts)) {
 								resultsQueue.put(formatResult(lastComment.getDate()));
 							}
 						}
@@ -118,7 +120,8 @@ public class Scheduler implements Runnable {
 					if (lastPost != PostParser.POISON_PILL) {
 						addPost(lastPost);
 						updateScores(lastPost.getLastMAJDate());
-						if (!compare(tempIdsBestPost, bestPosts)){
+						updateBestScores();
+						if (!compare(tempIdsBestPost, bestPosts)) {
 							resultsQueue.put(formatResult(lastPost.getDate()));
 						}
 
@@ -135,7 +138,8 @@ public class Scheduler implements Runnable {
 					if (lastComment != CommentParser.POISON_PILL) {
 						addComment(lastComment);
 						updateScores(lastComment.getLastMAJDate());
-						if (!compare(tempIdsBestPost, bestPosts)){
+						updateBestScores();
+						if (!compare(tempIdsBestPost, bestPosts)) {
 							resultsQueue.put(formatResult(lastComment.getDate()));
 						}
 					}
@@ -194,6 +198,7 @@ public class Scheduler implements Runnable {
 	 * Mets à jour les map postStillAlive, scores, et bestPosts à la date donnée
 	 */
 	private void updateScores(DateTime date) {
+		
 		// Mise à jour de la map idPost => POST (calcul de leur score et
 		// suppression des posts morts)
 		List<Long> idsPostDead = new ArrayList<>();
@@ -201,37 +206,50 @@ public class Scheduler implements Runnable {
 			Long key = entry.getKey();
 			Post post = entry.getValue();
 
-			// On met à jour le score total du post
+			int scoreBefore = post.getScoreTotal();
 			post.calculScore(date);
+			int newScore = post.getScoreTotal();
+			
+			if (newScore != scoreBefore && newScore !=0) {
+				if (scores.containsKey(scoreBefore)) {
+					List<Post> postScore = new ArrayList<>();
+					postScore = scores.get(scoreBefore);
+					postScore.remove(post);
+					if (postScore.size() != 0){
+						Collections.sort(postScore);
+						Collections.reverse(postScore);
+						scores.put(scoreBefore, postScore);
+					} else {
+						scores.remove(scoreBefore);
+					}
+					
+				}
+				if (scores.containsKey(newScore)) {
+					List<Post> posts = scores.get(newScore);
+					posts.add(post);
+					Collections.sort(posts);
+					Collections.reverse(posts);
+					scores.put(newScore, posts);
+				} else {
+					List<Post> posts = new ArrayList<>();
+					posts.add(post);
+					scores.put(newScore, posts);
+				}
+			} 
+
+			// On met à jour le score total du post
+
 			// Si le poste est mort, on le supprime de la map
 			if (post.isDead()) {
 				idsPostDead.add(key);
 			}
 		}
-		for(int i=0 ; i<idsPostDead.size();i++){
+		
+		for (int i = 0; i < idsPostDead.size(); i++) {
 			postsStillAlive.remove(idsPostDead.get(i));
 		}
 
-		// Mise à jour de la map score => [idPost1, idPost2]
-		scores.clear();
-		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
-			Long key = entry.getKey();
-			Integer score = postsStillAlive.get(key).getScoreTotal();
-
-			if (scores.containsKey(score)) {
-				List<Post> posts = scores.get(score);
-				posts.add(postsStillAlive.get(key));
-				Collections.sort(posts);
-				Collections.reverse(posts);
-				scores.put(score, posts);
-			} else {
-				List<Post> posts = new ArrayList<>();
-				posts.add(postsStillAlive.get(key));
-				scores.put(score, posts);
-			}
-
-		}
-		updateBestScores();
+		//updateBestScores();
 
 	}
 
@@ -245,16 +263,18 @@ public class Scheduler implements Runnable {
 		for (Entry<Integer, List<Post>> entry : scores.entrySet()) {
 			List<Post> posts = entry.getValue();
 			if (posts.size() > 1) {
-				
+
 				for (int i = 0; i < posts.size(); i++) {
 					bestPosts.add(posts.get(i));
 					nbPostsTaken++;
-					if (nbPostsTaken >= 3) return;						
+					if (nbPostsTaken >= 3)
+						return;
 				}
 			} else {
 				bestPosts.add(posts.get(0));
 				nbPostsTaken++;
-				if (nbPostsTaken >= 3) return;
+				if (nbPostsTaken >= 3)
+					return;
 			}
 		}
 
@@ -285,20 +305,20 @@ public class Scheduler implements Runnable {
 		}
 		return strBuilder.toString();
 	}
-	
-	private boolean compare(List<Long> l1, List<Post> l2){
 
-		if (l1.size() == l2.size()){
-			for (int i =0 ; i <l1.size(); i++){
-				if (l1.get(i) != l2.get(i).getId()){
+	private boolean compare(List<Long> l1, List<Post> l2) {
+
+		if (l1.size() == l2.size()) {
+			for (int i = 0; i < l1.size(); i++) {
+				if (l1.get(i) != l2.get(i).getId()) {
 					return false;
 				}
 			}
 			return true;
-		} else{
+		} else {
 			return false;
 		}
-		
+
 	}
 
 }

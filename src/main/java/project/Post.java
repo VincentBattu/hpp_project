@@ -72,22 +72,25 @@ public class Post implements Comparable<Post> {
 	public void calculScore(DateTime date) {
 		scoreTotal = 0;
 		if (this.comments.size() != 0) {
+			
 			for (int i = 0; i < this.comments.size(); i++) {
-				this.comments.get(i).updateTime(date);
-				scoreTotal += this.comments.get(i).getScore();
+				Comment comment = this.comments.get(i);
+				comment.updateTime(date);
+				scoreTotal += comment.getScore();
 			}
 		}
 		majScore(date);
 		scoreTotal += this.score;
-		if (scoreTotal <= 0) {
+		
+		if (scoreTotal == 0) {
 			isDead = true;
-			scoreTotal = 0;
 		}
 	}
 
 	private void majScore(DateTime localDateTime) {
 
 		int temp = Days.daysBetween(this.creationDate, localDateTime).getDays() - nbDays;
+		
 		if (temp >= 1) {
 			this.score -= temp;
 			nbDays += temp;
@@ -147,6 +150,8 @@ public class Post implements Comparable<Post> {
 	public String toString() {
 		return "Post [id=" + id + ", userName=" + userName + ", scoreTotal=" + scoreTotal + "]";
 	}
+
+	
 
 	@Override
 	public int compareTo(Post post) {

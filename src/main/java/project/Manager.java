@@ -10,9 +10,9 @@ public class Manager {
 	private Printer printer;
 	private Scheduler scheduler;
 
-	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(20);
-	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(20);
-	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(20);
+	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(100);
+	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(100);
+	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(100);
 	
 	
 
@@ -46,7 +46,7 @@ public class Manager {
 	
 	public static void main(String[] args) {
 		long t1 = System.currentTimeMillis();
-		new Manager("data/posts.dat","data/comments.dat","data/test.txt");
+		new Manager("data/postsRed.dat","data/commentsRed.dat","data/test.txt");
 		
 		System.out.println(System.currentTimeMillis() -t1 + "ms");
 	}
