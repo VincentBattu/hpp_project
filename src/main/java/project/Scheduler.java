@@ -33,12 +33,14 @@ public class Scheduler implements Runnable {
 	/**
 	 * Résultats envoyés au printer
 	 */
-	private BlockingQueue<String> resultsQueue;
+	private BlockingQueue<Result> resultsQueue;
 
 	public static final String POISON_PILL = "ça par exemple";
+	
+	public static final Result POISON_PILL_RESULT = new Result("",new ArrayList<>());
 
 	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
-			BlockingQueue<String> resultsQueue) {
+			BlockingQueue<Result> resultsQueue) {
 		this.postQueue = postQueue;
 		this.commentQueue = commentQueue;
 		this.resultsQueue = resultsQueue;
@@ -88,7 +90,8 @@ public class Scheduler implements Runnable {
 							updateScores(lastPost.getLastMAJDate());
 							updateBestScores();
 							if (!compare(tempIdsBestPost, bestPosts)) {
-								resultsQueue.put(formatResult(lastPost.getDate()));
+								Result res = new Result(lastPost.getDate(),bestPosts);
+								resultsQueue.put(res);
 							}
 
 						}
@@ -103,7 +106,8 @@ public class Scheduler implements Runnable {
 							updateScores(lastComment.getLastMAJDate());
 							updateBestScores();
 							if (!compare(tempIdsBestPost, bestPosts)) {
-								resultsQueue.put(formatResult(lastComment.getDate()));
+								Result res = new Result(lastComment.getDate(),bestPosts);
+								resultsQueue.put(res);
 							}
 						}
 						lastComment = commentQueue.take();
@@ -122,7 +126,8 @@ public class Scheduler implements Runnable {
 						updateScores(lastPost.getLastMAJDate());
 						updateBestScores();
 						if (!compare(tempIdsBestPost, bestPosts)) {
-							resultsQueue.put(formatResult(lastPost.getDate()));
+							Result res = new Result(lastPost.getDate(),bestPosts);
+							resultsQueue.put(res);
 						}
 
 					}
@@ -140,7 +145,8 @@ public class Scheduler implements Runnable {
 						updateScores(lastComment.getLastMAJDate());
 						updateBestScores();
 						if (!compare(tempIdsBestPost, bestPosts)) {
-							resultsQueue.put(formatResult(lastComment.getDate()));
+							Result res = new Result(lastComment.getDate(),bestPosts);
+							resultsQueue.put(res);
 						}
 					}
 					lastComment = commentQueue.take();
@@ -150,7 +156,7 @@ public class Scheduler implements Runnable {
 			}
 		}
 		try {
-			resultsQueue.put(POISON_PILL);
+			resultsQueue.put(POISON_PILL_RESULT);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -278,32 +284,6 @@ public class Scheduler implements Runnable {
 			}
 		}
 
-	}
-
-	public String formatResult(String date) {
-		StringBuilder strBuilder = new StringBuilder();
-		strBuilder.append(date);
-		for (Post post : bestPosts) {
-			strBuilder.append(',');
-			strBuilder.append(post.getId());
-			strBuilder.append(',');
-			strBuilder.append(post.getUserName());
-			strBuilder.append(',');
-			strBuilder.append(post.getScoreTotal());
-			strBuilder.append(',');
-			strBuilder.append(post.getNbCommenter());
-		}
-		for (int i = 0; i < 3 - bestPosts.size(); i++) {
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-		}
-		return strBuilder.toString();
 	}
 
 	private boolean compare(List<Long> l1, List<Post> l2) {

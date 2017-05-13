@@ -12,7 +12,7 @@ public class Manager {
 
 	private BlockingQueue<Post> postQueue = new ArrayBlockingQueue<Post>(100);
 	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(100);
-	private BlockingQueue<String> resultQueue = new ArrayBlockingQueue<String>(100);
+	private BlockingQueue<Result> resultQueue = new ArrayBlockingQueue<Result>(100);
 	
 	
 

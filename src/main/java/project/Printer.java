@@ -7,24 +7,50 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class Printer implements Runnable {
 	
-	private BlockingQueue<String> bufferQueue;
+	private BlockingQueue<Result> bufferQueue;
 	/**
 	 * Chemin du fichier de sortie
 	 */
 	private String path;
 
-	public Printer(BlockingQueue<String> bufferQueue, String path) {
+	public Printer(BlockingQueue<Result> bufferQueue, String path) {
 		this.path = path;
 		this.bufferQueue = bufferQueue;
+	}
+	
+	public String formatResult(String date, List<Post> bestPosts) {
+		StringBuilder strBuilder = new StringBuilder();
+		strBuilder.append(date);
+		for (Post post : bestPosts) {
+			strBuilder.append(',');
+			strBuilder.append(post.getId());
+			strBuilder.append(',');
+			strBuilder.append(post.getUserName());
+			strBuilder.append(',');
+			strBuilder.append(post.getScoreTotal());
+			strBuilder.append(',');
+			strBuilder.append(post.getNbCommenter());
+		}
+		for (int i = 0; i < 3 - bestPosts.size(); i++) {
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+			strBuilder.append(',');
+			strBuilder.append('-');
+		}
+		return strBuilder.toString();
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		
 		File file =  new File(path) ;
 		OutputStream os = null;
@@ -35,12 +61,13 @@ public class Printer implements Runnable {
 			DataOutputStream dos =  new DataOutputStream(os) ; 
 			
 			try {
-				String line = bufferQueue.take();
-				while(line != Scheduler.POISON_PILL){
+				Result resultat = bufferQueue.take();
+				while(resultat != Scheduler.POISON_PILL_RESULT){
 					try {
+						String line = formatResult(resultat.getTimeStamp(),resultat.getTopPosts());
 						dos.write(line.getBytes(Charset.forName("UTF-8")));
 						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
-						line = bufferQueue.take();
+						resultat = bufferQueue.take();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
