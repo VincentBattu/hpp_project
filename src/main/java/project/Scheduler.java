@@ -3,12 +3,11 @@ package project;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import java.util.TreeMap;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.joda.time.DateTime;
@@ -28,7 +27,7 @@ public class Scheduler implements Runnable {
 	/**
 	 * Liste des trois meilleurs posts
 	 */
-	private List<Post> bestPosts = new ArrayList<>(3);
+	private List<Post> bestPosts = new Vector<>(3);
 
 	/**
 	 * Résultats envoyés au printer
@@ -36,8 +35,8 @@ public class Scheduler implements Runnable {
 	private BlockingQueue<Result> resultsQueue;
 
 	public static final String POISON_PILL = "ça par exemple";
-	
-	public static final Result POISON_PILL_RESULT = new Result("",new ArrayList<>());
+
+	public static final Result POISON_PILL_RESULT = new Result("", new ArrayList<>());
 
 	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
 			BlockingQueue<Result> resultsQueue) {
@@ -90,7 +89,7 @@ public class Scheduler implements Runnable {
 							updateScores(lastPost.getLastMAJDate());
 							updateBestScores();
 							if (!compare(tempIdsBestPost, bestPosts)) {
-								Result res = new Result(lastPost.getDate(),bestPosts);
+								Result res = new Result(lastPost.getDate(), bestPosts);
 								resultsQueue.put(res);
 							}
 
@@ -106,7 +105,7 @@ public class Scheduler implements Runnable {
 							updateScores(lastComment.getLastMAJDate());
 							updateBestScores();
 							if (!compare(tempIdsBestPost, bestPosts)) {
-								Result res = new Result(lastComment.getDate(),bestPosts);
+								Result res = new Result(lastComment.getDate(), bestPosts);
 								resultsQueue.put(res);
 							}
 						}
@@ -126,7 +125,7 @@ public class Scheduler implements Runnable {
 						updateScores(lastPost.getLastMAJDate());
 						updateBestScores();
 						if (!compare(tempIdsBestPost, bestPosts)) {
-							Result res = new Result(lastPost.getDate(),bestPosts);
+							Result res = new Result(lastPost.getDate(), bestPosts);
 							resultsQueue.put(res);
 						}
 
@@ -145,7 +144,7 @@ public class Scheduler implements Runnable {
 						updateScores(lastComment.getLastMAJDate());
 						updateBestScores();
 						if (!compare(tempIdsBestPost, bestPosts)) {
-							Result res = new Result(lastComment.getDate(),bestPosts);
+							Result res = new Result(lastComment.getDate(), bestPosts);
 							resultsQueue.put(res);
 						}
 					}
@@ -204,7 +203,7 @@ public class Scheduler implements Runnable {
 	 * Mets à jour les map postStillAlive, scores, et bestPosts à la date donnée
 	 */
 	private void updateScores(DateTime date) {
-		
+
 		// Mise à jour de la map idPost => POST (calcul de leur score et
 		// suppression des posts morts)
 		List<Long> idsPostDead = new ArrayList<>();
@@ -215,20 +214,20 @@ public class Scheduler implements Runnable {
 			int scoreBefore = post.getScoreTotal();
 			post.calculScore(date);
 			int newScore = post.getScoreTotal();
-			
-			if (newScore != scoreBefore && newScore !=0) {
+
+			if (newScore != scoreBefore && newScore != 0) {
 				if (scores.containsKey(scoreBefore)) {
 					List<Post> postScore = new ArrayList<>();
 					postScore = scores.get(scoreBefore);
 					postScore.remove(post);
-					if (postScore.size() != 0){
+					if (postScore.size() != 0) {
 						Collections.sort(postScore);
 						Collections.reverse(postScore);
 						scores.put(scoreBefore, postScore);
 					} else {
 						scores.remove(scoreBefore);
 					}
-					
+
 				}
 				if (scores.containsKey(newScore)) {
 					List<Post> posts = scores.get(newScore);
@@ -241,7 +240,7 @@ public class Scheduler implements Runnable {
 					posts.add(post);
 					scores.put(newScore, posts);
 				}
-			} 
+			}
 
 			// On met à jour le score total du post
 
@@ -250,12 +249,12 @@ public class Scheduler implements Runnable {
 				idsPostDead.add(key);
 			}
 		}
-		
+
 		for (int i = 0; i < idsPostDead.size(); i++) {
 			postsStillAlive.remove(idsPostDead.get(i));
 		}
 
-		//updateBestScores();
+		// updateBestScores();
 
 	}
 

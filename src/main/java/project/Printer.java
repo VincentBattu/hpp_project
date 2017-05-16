@@ -11,60 +11,67 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class Printer implements Runnable {
-	
+
 	private BlockingQueue<Result> bufferQueue;
 	/**
 	 * Chemin du fichier de sortie
 	 */
 	private String path;
 
+	private Result resultat;
+
 	public Printer(BlockingQueue<Result> bufferQueue, String path) {
 		this.path = path;
 		this.bufferQueue = bufferQueue;
 	}
-	
+
 	public String formatResult(String date, List<Post> bestPosts) {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(date);
-		for (Post post : bestPosts) {
-			strBuilder.append(',');
-			strBuilder.append(post.getId());
-			strBuilder.append(',');
-			strBuilder.append(post.getUserName());
-			strBuilder.append(',');
-			strBuilder.append(post.getScoreTotal());
-			strBuilder.append(',');
-			strBuilder.append(post.getNbCommenter());
-		}
-		for (int i = 0; i < 3 - bestPosts.size(); i++) {
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
+
+		synchronized (bestPosts) {
+			for (Post post : bestPosts) {
+				strBuilder.append(',');
+				strBuilder.append(post.getId());
+				strBuilder.append(',');
+				strBuilder.append(post.getUserName());
+				strBuilder.append(',');
+				strBuilder.append(post.getScoreTotal());
+				strBuilder.append(',');
+				strBuilder.append(post.getNbCommenter());
+			}
+			int size = 3 - bestPosts.size();
+			for (int i = 0; i < size; i++) {
+				strBuilder.append(',');
+				strBuilder.append('-');
+				strBuilder.append(',');
+				strBuilder.append('-');
+				strBuilder.append(',');
+				strBuilder.append('-');
+				strBuilder.append(',');
+				strBuilder.append('-');
+			}
 		}
 		return strBuilder.toString();
 	}
 
 	@Override
 	public void run() {
-		
-		File file =  new File(path) ;
+
+		File file = new File(path);
 		OutputStream os = null;
-		String Newligne=System.getProperty("line.separator"); 
-		
+		String Newligne = System.getProperty("line.separator");
+
 		try {
-			 os = new FileOutputStream(file);
-			DataOutputStream dos =  new DataOutputStream(os) ; 
-			
+			os = new FileOutputStream(file);
+			DataOutputStream dos = new DataOutputStream(os);
+
 			try {
-				Result resultat = bufferQueue.take();
-				while(resultat != Scheduler.POISON_PILL_RESULT){
+				resultat = bufferQueue.take();
+				String line = "";
+				while (resultat != Scheduler.POISON_PILL_RESULT) {
 					try {
-						String line = formatResult(resultat.getTimeStamp(),resultat.getTopPosts());
+						line = formatResult(resultat.getTimeStamp(), resultat.getTopPosts());
 						dos.write(line.getBytes(Charset.forName("UTF-8")));
 						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
 						resultat = bufferQueue.take();
@@ -80,7 +87,7 @@ public class Printer implements Runnable {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally{
+		} finally {
 			try {
 				os.close();
 				System.out.println("FIN");
@@ -89,7 +96,7 @@ public class Printer implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 }
