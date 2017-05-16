@@ -36,7 +36,7 @@ public class PostParser implements Runnable {
 	public void run() {
 		String[] elements = null;
 		try {
-			logger.debug("Reading post.dat");
+			
 			while ((line = br.readLine()) != null){
 				elements = line.split(SEPARATOR);
 				try {

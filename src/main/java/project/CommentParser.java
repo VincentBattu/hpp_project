@@ -34,7 +34,7 @@ public class CommentParser implements Runnable {
 		String[] elements = null;
 		
 		try {
-			logger.debug("Reading comment.dat");
+			
 			while ((line = br.readLine()) != null) {
 				elements = line.split(SEPARATOR);
 				if (elements.length != 1) {
