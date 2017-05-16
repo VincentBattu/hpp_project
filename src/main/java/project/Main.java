@@ -2,6 +2,9 @@ package project;
 
 import org.joda.time.DateTime;
 
+import model.Comment;
+import model.Post;
+
 public class Main {
 
 	static DateTime creationDate = new DateTime(2010, 03, 01, 20, 15, 10);

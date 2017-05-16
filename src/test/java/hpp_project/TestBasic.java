@@ -12,8 +12,8 @@ import org.joda.time.tz.Provider;
 import org.junit.Before;
 import org.junit.Test;
 
-import project.Comment;
-import project.Post;
+import model.Comment;
+import model.Post;
 
 public class TestBasic {
 	

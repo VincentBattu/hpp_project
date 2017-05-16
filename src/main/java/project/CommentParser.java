@@ -8,6 +8,8 @@ import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import model.Comment;
 public class CommentParser implements Runnable {
 
 	private static String SEPARATOR = "\\|";

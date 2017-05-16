@@ -36,7 +36,7 @@ public class Printer implements Runnable {
 			
 			try {
 				String line = bufferQueue.take();
-				while(line != Scheduler.POISON_PILL){
+				while(line != Scheduler.RESULT_POISON_PILL){
 					try {
 						dos.write(line.getBytes(Charset.forName("UTF-8")));
 						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));

@@ -13,10 +13,12 @@ import java.util.concurrent.BlockingQueue;
 
 import org.joda.time.DateTime;
 
+import model.Comment;
+import model.Post;
+
 public class Scheduler implements Runnable {
 
-	private BlockingQueue<Post> postQueue;
-	private BlockingQueue<Comment> commentQueue;
+	private BlockingQueue<Object> objects;
 
 	private Map<Long, Post> postsStillAlive = new HashMap<>();
 
@@ -35,126 +37,80 @@ public class Scheduler implements Runnable {
 	 */
 	private BlockingQueue<String> resultsQueue;
 	
-	public static final String POISON_PILL = "ça par exemple";
+	private int compteur = 0;
+	private long t1;
+	private long t2;
+	
+	public static final String RESULT_POISON_PILL = "ça par exemple";
 
-	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
+	public Scheduler(BlockingQueue<Object> objects,
 			BlockingQueue<String> resultsQueue) {
-		this.postQueue = postQueue;
-		this.commentQueue = commentQueue;
+		this.objects = objects;
 		this.resultsQueue = resultsQueue;
 	}
 
 	@Override
 	public void run() {
-
-		DateTime lastPostDate;
-		DateTime lastCommentDate;
-		Post lastPost = null;
-		Comment lastComment = null;
-		boolean postEnd = false;
-		boolean commentEnd = false;
-		try {
-			lastPost = postQueue.take();
-			lastComment = commentQueue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		for (;;) {
-			if (postEnd && commentEnd) {
-				break;
+		t1 = System.currentTimeMillis();
+		for (;;){
+			
+			if (compteur == 1000){
+				compteur = 0;
+				t2 = System.currentTimeMillis();
+				System.out.println("Pour 1000 entités, tps traitement : " + (t2-t1) + " ms");
+				t1=t2;
 			}
-			if (lastPost == PostParser.POISON_PILL) {
-				postEnd = true;
-			}
-			if (lastComment == CommentParser.POISON_PILL) {
-				commentEnd = true;
-			}
-
-			// Si on n'est pas à la fin d'une des deux queues.
-			List<Long> tempIdsBestPost = new ArrayList<>();
-			for (Post post : bestPosts){
-				tempIdsBestPost.add(post.getId());
+			compteur++;
+			Object object = null;
+			try {
+				object = objects.take();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
-			if (!postEnd && !commentEnd) {
-				lastPostDate = lastPost.getCreationDate();
-				lastCommentDate = lastComment.getcreationDate();
-
-				if (lastCommentDate.isAfter(lastPostDate)) {
-					try {
-						if (lastPost != PostParser.POISON_PILL) {
-							addPost(lastPost);
-							updateScores(lastPost.getLastMAJDate());
-							if (!compare(tempIdsBestPost, bestPosts)){
-								resultsQueue.put(formatResult(lastPost.getDate()));
-							}
-							
-						}
-						lastPost = postQueue.take();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				} else {
-					try {
-						if (lastComment != CommentParser.POISON_PILL) {
-							addComment(lastComment);
-							updateScores(lastComment.getLastMAJDate());
-							if (!compare(tempIdsBestPost, bestPosts)){
-								resultsQueue.put(formatResult(lastComment.getDate()));
-							}
-						}
-						lastComment = commentQueue.take();
-
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-			} // Si on est à la fin de la queue comment, on ne retire que dans
-				// post
-			else if (!postEnd) {
-				try {
-					if (lastPost != PostParser.POISON_PILL) {
-						addPost(lastPost);
-						updateScores(lastPost.getLastMAJDate());
-						if (!compare(tempIdsBestPost, bestPosts)){
-							resultsQueue.put(formatResult(lastPost.getDate()));
-						}
-
-					}
-					lastPost = postQueue.take();
-
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			} // Si on est à la fin de la queue post, on ne retirer que dans
-				// comment
-			else if (!commentEnd) {
-				try {
-					if (lastComment != CommentParser.POISON_PILL) {
-						addComment(lastComment);
-						updateScores(lastComment.getLastMAJDate());
-						if (!compare(tempIdsBestPost, bestPosts)){
-							resultsQueue.put(formatResult(lastComment.getDate()));
-						}
-					}
-					lastComment = commentQueue.take();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			List<Long> tempsIdsBestPosts = new ArrayList<>(3);
+			for (Post post : bestPosts){
+				tempsIdsBestPosts.add(post.getId());
 			}
+			if (object == Parser.POISON_PILL){
+				try {
+					resultsQueue.put(RESULT_POISON_PILL);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println("FIN");
+				break;
+			}
+			else if (object instanceof Post){
+				
+				addPost((Post) object);
+				updateScores(((Post) object).getLastMAJDate());
+				if (!compare(tempsIdsBestPosts, bestPosts)){
+					try {
+						resultsQueue.put(formatResult(((Post) object).getDate()));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
+				addComment((Comment) object);
+				updateScores(((Comment) object).getLastMAJDate());
+				if (!compare(tempsIdsBestPosts, bestPosts)){
+					try {
+						resultsQueue.put(formatResult(((Comment) object).getDate()));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				
+			}
+			
 		}
-		try {
-			resultsQueue.put(POISON_PILL);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
 	}
-
-	/**
-	 * Ajoute un commentaire
-	 */
+	
 	private void addComment(Comment comment) {
 
 		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
