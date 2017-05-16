@@ -11,6 +11,8 @@ import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Scheduler implements Runnable {
 
@@ -37,6 +39,8 @@ public class Scheduler implements Runnable {
 	public static final String POISON_PILL = "ça par exemple";
 
 	public static final Result POISON_PILL_RESULT = new Result("", new ArrayList<>());
+	
+	Logger logger = LoggerFactory.getLogger(Scheduler.class);
 
 	public Scheduler(BlockingQueue<Post> postQueue, BlockingQueue<Comment> commentQueue,
 			BlockingQueue<Result> resultsQueue) {
@@ -58,7 +62,7 @@ public class Scheduler implements Runnable {
 			lastPost = postQueue.take();
 			lastComment = commentQueue.take();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		for (;;) {
@@ -96,7 +100,7 @@ public class Scheduler implements Runnable {
 						}
 						lastPost = postQueue.take();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				} else {
 					try {
@@ -112,7 +116,7 @@ public class Scheduler implements Runnable {
 						lastComment = commentQueue.take();
 
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 
@@ -133,7 +137,7 @@ public class Scheduler implements Runnable {
 					lastPost = postQueue.take();
 
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			} // Si on est à la fin de la queue post, on ne retirer que dans
 				// comment
@@ -150,14 +154,14 @@ public class Scheduler implements Runnable {
 					}
 					lastComment = commentQueue.take();
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 		}
 		try {
 			resultsQueue.put(POISON_PILL_RESULT);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 

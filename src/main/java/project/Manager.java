@@ -3,6 +3,9 @@ package project;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Manager {
 
 	private PostParser postParser;
@@ -14,7 +17,7 @@ public class Manager {
 	private BlockingQueue<Comment> commentQueue = new ArrayBlockingQueue<Comment>(100);
 	private BlockingQueue<Result> resultQueue = new ArrayBlockingQueue<Result>(100);
 	
-	
+	Logger logger = LoggerFactory.getLogger(Manager.class);
 
 
 	public Manager(String postsPath, String commentsPath, String resultPath) {
@@ -40,8 +43,8 @@ public class Manager {
 			t3.join();
 			t4.join();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+			logger.error(e.getMessage());	
+			}
 	}
 	
 	public static void main(String[] args) {

@@ -10,6 +10,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Printer implements Runnable {
 
 	private BlockingQueue<Result> bufferQueue;
@@ -19,6 +22,8 @@ public class Printer implements Runnable {
 	private String path;
 
 	private Result resultat;
+	
+	Logger logger = LoggerFactory.getLogger(Printer.class);
 
 	public Printer(BlockingQueue<Result> bufferQueue, String path) {
 		this.path = path;
@@ -77,23 +82,23 @@ public class Printer implements Runnable {
 						resultat = bufferQueue.take();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage());
 					}
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			try {
 				os.close();
 				System.out.println("FIN");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 
