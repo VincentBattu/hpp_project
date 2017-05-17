@@ -20,19 +20,18 @@ public class Schedulerv2 implements Runnable {
 
 	/**
 	 * Définit l'association entre un commentaire et le post auquel il est
-	 * rapporté.
+	 * rapporté. Les association sont faites à l'aide des id
 	 */
-	private Map<Comment, Post> commentToPost;
+	private Map<Long, Long> commentToPost;
 
 	/**
-	 * Définit le score de chaque poste. Est trié selon les valeur avec la
+	 * Définit le score de chaque poste à l'aide de son id. Est trié selon les valeur avec la
 	 * méthode de Helper
 	 */
-	private Map<Post, Integer> postScore;
+	private Map<Long, Integer> postScore;
 
 	/**
-	 * Définit l'association entre un id et un post (utile pour associer un
-	 * commentaire à un post).
+	 * Définit l'association entre un id et un post
 	 */
 	private Map<Long, Post> postId;
 
@@ -119,7 +118,7 @@ public class Schedulerv2 implements Runnable {
 			// Si l'entité est un post, on l'ajoutee à postScore et à postId
 			// Sinon on l'ajoute à commentToPost
 			if (entity instanceof Post) {
-				postScore.put((Post) entity, 10);
+				postScore.put(((Post) entity).getId(), 10);
 				postId.put(((Post) entity).getId(), (Post) entity);
 			} else {
 
@@ -128,20 +127,20 @@ public class Schedulerv2 implements Runnable {
 				// faire la correspondance
 				// facilement
 				if (linkPost != -1) {
-					commentToPost.put((Comment) entity, postId.get(linkPost));
+					commentToPost.put(((Comment) entity).getCommentId(), linkPost);
 				}
 				// Sinon on doit parcourir notre map de commentaires pour
 				// trouver le commentaire parent
 				else {
 					long linkCom = ((Comment) entity).getLinkCom();
 
-					for (Entry<Comment, Post> entry : commentToPost.entrySet()) {
-						Comment comment = entry.getKey();
+					for (Entry<Long, Long> entry : commentToPost.entrySet()) {
+						Long commentId = entry.getKey();
 						// Si on trouve le commentaire parent, on définit la
 						// relation
 						// commentaire fils -> post du commentaire parent
-						if (comment.getCommentId() == linkCom) {
-							commentToPost.put(comment, postId.get(comment.getLinkPost()));
+						if (commentId == linkCom) {
+							commentToPost.put(commentId, entry.getValue());
 						}
 					}
 				}
@@ -155,11 +154,12 @@ public class Schedulerv2 implements Runnable {
 			// On récupère les meilleurs posts
 			int cpt = 0;
 			List<Post> bestPosts= new ArrayList<Post>();
-			for(Entry<Post, Integer> entry : postScore.entrySet()){
+			for(Entry<Long, Integer> entry : postScore.entrySet()){
 				if (cpt >= 3)
 					break;
 				cpt++;
-				Post post = entry.getKey();
+				Long postId = entry.getKey();
+				Post post = this.postId.get(postId);
 				post.setScoreTotal(entry.getValue());
 				bestPosts.add(post);
 			}
@@ -258,7 +258,7 @@ public class Schedulerv2 implements Runnable {
 				postScore.remove((Post) entity);
 				return false;
 			} else {
-				postScore.put((Post) entity, postScore.get(entity) - 1);
+				postScore.put(((Post) entity).getId(), postScore.get(entity) - 1);
 				return true;
 			}
 			
@@ -266,21 +266,21 @@ public class Schedulerv2 implements Runnable {
 		// Si l'entité est un commentaire, on va chercher le post correspondant
 		// au commentaire et on décrémente le post de 1
 		else {
-			Post post = commentToPost.get((Comment) entity);
+			Long postId = commentToPost.get(((Comment) entity).getCommentId());
 			// Si le post à une valeur de 1, il va mourir, on le supprime ainsi que son commentaire.
-			if (postScore.get(post) == 1){
-				postScore.remove(post);
+			if (postScore.get(postId) == 1){
+				postScore.remove(postId);
 				return false;
 			}
 			
 			// Si la map ne contient pas le post, c'est qu'il est déjà mort, on supprime donc le commentaire
-			else if (postScore.get(post) == null){
-				commentToPost.remove((Comment) entity);
+			else if (postScore.get(postId) == null){
+				commentToPost.remove(((Comment) entity).getCommentId());
 				return false;
 			}
 			// Sinon, on décrémente la valeur du post de 1
 			else {
-				postScore.put(post,  postScore.get(post) -1);
+				postScore.put(postId,  postScore.get(postId) -1);
 				return true;
 			}
 		}
