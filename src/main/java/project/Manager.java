@@ -4,20 +4,22 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import model.Entity;
+
 public class Manager {
 
 	private Parser parser;
 	private Printer printer;
-	private Scheduler scheduler;
+	private Schedulerv2 scheduler;
 
-	private BlockingQueue<Object> objectQueue = new LinkedBlockingQueue<>(500000);
-	private BlockingQueue<String> resultQueue = new LinkedBlockingQueue<String>(50000);
+	private BlockingQueue<Entity> objectQueue = new LinkedBlockingQueue<>(100);
+	private BlockingQueue<String> resultQueue = new LinkedBlockingQueue<String>(100);
 
 	public Manager(String postsPath, String commentsPath, String resultPath) {
 
 		parser = new Parser(commentsPath, postsPath, objectQueue);
 
-		scheduler = new Scheduler(objectQueue, resultQueue);
+		scheduler = new Schedulerv2(objectQueue, resultQueue);
 		printer = new Printer(resultQueue, resultPath);
 		Thread t = new Thread(parser);
 		Thread t3 = new Thread(scheduler);

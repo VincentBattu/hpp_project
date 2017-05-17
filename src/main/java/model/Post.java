@@ -9,7 +9,7 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Post extends Object implements Comparable<Post>  {
+public class Post implements Comparable<Post>, Entity  {
 
 	private List<Comment> comments;
 
@@ -142,6 +142,10 @@ public class Post extends Object implements Comparable<Post>  {
 	public DateTime getCreationDate() {
 		return creationDate;
 	}
+	
+	public void setScoreTotal(int scoreTotal){
+		this.scoreTotal = scoreTotal;
+	}
 
 	@Override
 	public String toString() {
@@ -166,5 +170,22 @@ public class Post extends Object implements Comparable<Post>  {
 			}
 		}
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Post other = (Post) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+	
+	
 
 }

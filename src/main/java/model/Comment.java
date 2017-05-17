@@ -1,12 +1,15 @@
 package model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Comment extends Object {
+public class Comment implements Entity{
 
 	private String date;
 
@@ -95,5 +98,21 @@ public class Comment extends Object {
 	public long getLinkPost() {
 		return linkPost;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Comment other = (Comment) obj;
+		if (commentId != other.commentId)
+			return false;
+		return true;
+	}
+	
+	
 
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import org.joda.time.DateTime;
 
 import model.Comment;
+import model.Entity;
 import model.Post;
 
 public class Parser implements Runnable {
@@ -19,16 +20,16 @@ public class Parser implements Runnable {
 	private BufferedReader brPost = null;
 	private BufferedReader brComment = null;
 	private String line = "";
-	private BlockingQueue<Object> queue;
-	private List<Object> listPost = new ArrayList<>(1);
-	private List<Object> listComment = new ArrayList<>(1);
+	private BlockingQueue<Entity> queue;
+	private List<Entity> listPost = new ArrayList<>(1);
+	private List<Entity> listComment = new ArrayList<>(1);
 
-	public static Object POISON_PILL = new Object();
+	public static Entity POISON_PILL = new Comment("0000-02-02T19:53:43.226+0000", 0, 0, "", -1, -1);
 
-	private static Object POISON_PILL_COMMENT = new Comment("1124-02-02T19:53:43.226+0000", 0, 0, "", -1, -1);
-	private static Object POISON_PILL_POST = new Post("1124-02-02T19:53:43.226+0000", 0, 0, "");
+	private static Entity POISON_PILL_COMMENT = new Comment("1124-02-02T19:53:43.226+0000", 0, 0, "", -1, -1);
+	private static Entity POISON_PILL_POST = new Post("1124-02-02T19:53:43.226+0000", 0, 0, "");
 
-	Parser(String commentsPath, String postsPath, BlockingQueue<Object> queue) {
+	Parser(String commentsPath, String postsPath, BlockingQueue<Entity> queue) {
 		this.queue = queue;
 		try {
 			brPost = new BufferedReader(new FileReader(postsPath));
@@ -53,7 +54,7 @@ public class Parser implements Runnable {
 							userId = -1;
 						else
 							userId = Long.parseLong(elements[6]);
-						Object comment = new Comment(elements[0], Long.parseLong(elements[1]),
+						Entity comment = new Comment(elements[0], Long.parseLong(elements[1]),
 								Long.parseLong(elements[2]), elements[4], Long.parseLong(elements[5]), userId);
 						listComment.add(comment);
 					} else {
@@ -69,7 +70,7 @@ public class Parser implements Runnable {
 				try {
 					if ((line = brPost.readLine()) != null) {
 						elements = line.split(SEPARATOR);
-						Object post = new Post(elements[0], Long.parseLong(elements[1]), Long.parseLong(elements[2]),
+						Entity post = new Post(elements[0], Long.parseLong(elements[1]), Long.parseLong(elements[2]),
 								elements[4]);
 						listPost.add(post);
 					} else {
@@ -97,7 +98,7 @@ public class Parser implements Runnable {
 
 			if (lastCommentDate.isAfter(lastPostDate)) {
 				if (listPost.get(0) != POISON_PILL_POST) {
-					Object post = listPost.remove(0);
+					Entity post = listPost.remove(0);
 					try {
 						queue.put(post);
 					} catch (InterruptedException e) {
@@ -105,7 +106,7 @@ public class Parser implements Runnable {
 						e.printStackTrace();
 					}
 				} else {
-					Object comment = listComment.remove(0);
+					Entity comment = listComment.remove(0);
 					try {
 						queue.put(comment);
 					} catch (InterruptedException e) {
@@ -117,7 +118,7 @@ public class Parser implements Runnable {
 			}
 			if (lastPostDate.isAfter(lastCommentDate)) {
 				if (listComment.get(0) != POISON_PILL_COMMENT) {
-					Object comment = listComment.remove(0);
+					Entity comment = listComment.remove(0);
 					try {
 						queue.put(comment);
 					} catch (InterruptedException e) {
@@ -125,7 +126,7 @@ public class Parser implements Runnable {
 						e.printStackTrace();
 					}
 				} else {
-					Object post = listPost.remove(0);
+					Entity post = listPost.remove(0);
 					try {
 						queue.put(post);
 					} catch (InterruptedException e) {
