@@ -33,7 +33,7 @@ public class Post implements Comparable<Post>, Entity  {
 
 	private int nbDays = 0;
 
-	private int scoreTotal = 0;
+	private int scoreTotal = 10;
 
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
@@ -98,6 +98,14 @@ public class Post implements Comparable<Post>, Entity  {
 		this.lastMAJDate = localDateTime;
 
 	}
+	
+	public void decrementScore(){
+		this.scoreTotal -=1;
+	}
+	
+	public void incrementNbDays(){
+		this.nbDays += 1;
+	}
 
 	public List<Comment> getComments() {
 		return comments;
@@ -145,6 +153,10 @@ public class Post implements Comparable<Post>, Entity  {
 	
 	public void setScoreTotal(int scoreTotal){
 		this.scoreTotal = scoreTotal;
+	}
+	
+	public int getNbDays(){
+		return nbDays;
 	}
 
 	@Override

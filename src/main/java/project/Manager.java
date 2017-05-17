@@ -41,7 +41,7 @@ public class Manager {
 
 	public static void main(String[] args) {
 		long t1 = System.currentTimeMillis();
-		new Manager("data/posts.dat", "data/comments.dat", "data/test.txt");
+		new Manager("data/simplePosts.dat", "data/emptyComments.dat", "data/test.txt");
 
 		System.out.println(System.currentTimeMillis() - t1 + "ms");
 	}

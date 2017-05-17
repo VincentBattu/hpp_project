@@ -26,7 +26,7 @@ public class Scheduler implements Runnable {
 	 * Map qui associe les scores avec tous les posts qui ont ce score
 	 */
 	private Map<Integer, List<Post>> scores = new TreeMap<>(Collections.reverseOrder());
-	
+
 	/**
 	 * Liste des trois meilleurs posts
 	 */
@@ -36,15 +36,14 @@ public class Scheduler implements Runnable {
 	 * Résultats envoyés au printer
 	 */
 	private BlockingQueue<String> resultsQueue;
-	
+
 	private int compteur = 0;
 	private long t1;
 	private long t2;
-	
+
 	public static final String RESULT_POISON_PILL = "ça par exemple";
 
-	public Scheduler(BlockingQueue<Object> objects,
-			BlockingQueue<String> resultsQueue) {
+	public Scheduler(BlockingQueue<Object> objects, BlockingQueue<String> resultsQueue) {
 		this.objects = objects;
 		this.resultsQueue = resultsQueue;
 	}
@@ -52,13 +51,13 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		t1 = System.currentTimeMillis();
-		for (;;){
-			
-			if (compteur == 1000){
+		for (;;) {
+
+			if (compteur == 1000) {
 				compteur = 0;
 				t2 = System.currentTimeMillis();
-				System.out.println("Pour 1000 entités, tps traitement : " + (t2-t1) + " ms");
-				t1=t2;
+				System.out.println("Pour 1000 entités, tps traitement : " + (t2 - t1) + " ms");
+				t1 = t2;
 			}
 			compteur++;
 			Object object = null;
@@ -68,12 +67,12 @@ public class Scheduler implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			List<Long> tempsIdsBestPosts = new ArrayList<>(3);
-			for (Post post : bestPosts){
+			for (Post post : bestPosts) {
 				tempsIdsBestPosts.add(post.getId());
 			}
-			if (object == Parser.POISON_PILL){
+			if (object == Parser.POISON_PILL) {
 				try {
 					resultsQueue.put(RESULT_POISON_PILL);
 				} catch (InterruptedException e) {
@@ -82,12 +81,11 @@ public class Scheduler implements Runnable {
 				}
 				System.out.println("FIN");
 				break;
-			}
-			else if (object instanceof Post){
-				
+			} else if (object instanceof Post) {
+
 				addPost((Post) object);
 				updateScores(((Post) object).getLastMAJDate());
-				if (!compare(tempsIdsBestPosts, bestPosts)){
+				if (!compare(tempsIdsBestPosts, bestPosts)) {
 					try {
 						resultsQueue.put(formatResult(((Post) object).getDate()));
 					} catch (InterruptedException e) {
@@ -97,20 +95,20 @@ public class Scheduler implements Runnable {
 			} else {
 				addComment((Comment) object);
 				updateScores(((Comment) object).getLastMAJDate());
-				if (!compare(tempsIdsBestPosts, bestPosts)){
+				if (!compare(tempsIdsBestPosts, bestPosts)) {
 					try {
 						resultsQueue.put(formatResult(((Comment) object).getDate()));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	private void addComment(Comment comment) {
 
 		for (Entry<Long, Post> entry : postsStillAlive.entrySet()) {
@@ -164,7 +162,7 @@ public class Scheduler implements Runnable {
 				idsPostDead.add(key);
 			}
 		}
-		for(int i=0 ; i<idsPostDead.size();i++){
+		for (int i = 0; i < idsPostDead.size(); i++) {
 			postsStillAlive.remove(idsPostDead.get(i));
 		}
 
@@ -201,16 +199,18 @@ public class Scheduler implements Runnable {
 		for (Entry<Integer, List<Post>> entry : scores.entrySet()) {
 			List<Post> posts = entry.getValue();
 			if (posts.size() > 1) {
-				
+
 				for (int i = 0; i < posts.size(); i++) {
 					bestPosts.add(posts.get(i));
 					nbPostsTaken++;
-					if (nbPostsTaken >= 3) return;						
+					if (nbPostsTaken >= 3)
+						return;
 				}
 			} else {
 				bestPosts.add(posts.get(0));
 				nbPostsTaken++;
-				if (nbPostsTaken >= 3) return;
+				if (nbPostsTaken >= 3)
+					return;
 			}
 		}
 
@@ -241,20 +241,20 @@ public class Scheduler implements Runnable {
 		}
 		return strBuilder.toString();
 	}
-	
-	private boolean compare(List<Long> l1, List<Post> l2){
 
-		if (l1.size() == l2.size()){
-			for (int i =0 ; i <l1.size(); i++){
-				if (l1.get(i) != l2.get(i).getId()){
+	private boolean compare(List<Long> l1, List<Post> l2) {
+
+		if (l1.size() == l2.size()) {
+			for (int i = 0; i < l1.size(); i++) {
+				if (l1.get(i) != l2.get(i).getId()) {
 					return false;
 				}
 			}
 			return true;
-		} else{
+		} else {
 			return false;
 		}
-		
+
 	}
 
 }

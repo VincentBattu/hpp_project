@@ -11,4 +11,6 @@ public interface Entity {
 
 	public DateTime getLastMAJDate();
 	public String getDate();
+	public int getNbDays();
+	public void incrementNbDays();
 }

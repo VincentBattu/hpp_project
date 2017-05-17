@@ -98,6 +98,14 @@ public class Comment implements Entity{
 	public long getLinkPost() {
 		return linkPost;
 	}
+	
+	public int getNbDays(){
+		return nbDays;
+	}
+	
+	public void incrementNbDays(){
+		this.nbDays += 1;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

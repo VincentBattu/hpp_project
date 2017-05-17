@@ -25,15 +25,15 @@ public class Schedulerv2 implements Runnable {
 	private Map<Long, Long> commentToPost;
 
 	/**
-	 * Définit le score de chaque poste à l'aide de son id. Est trié selon les valeur avec la
-	 * méthode de Helper
+	 * Définit le score de chaque poste à l'aide de son id. Est trié selon les
+	 * valeur avec la méthode de Helper
 	 */
 	private Map<Long, Integer> postScore;
 
 	/**
 	 * Définit l'association entre un id et un post
 	 */
-	private Map<Long, Post> postId;
+	private Map<Long, Post> postIdMap;
 
 	// Les queues ci-dessous contiennent les entité de scores 10, 9,8,7 ...
 	// selon leur dénomination
@@ -71,7 +71,7 @@ public class Schedulerv2 implements Runnable {
 		this.resultsQueue = resultsQueue;
 
 		commentToPost = new HashMap<>();
-		postId = new HashMap<>();
+		postIdMap = new HashMap<>();
 		postScore = new HashMap<>();
 
 		queue10 = new LinkedList<>();
@@ -118,8 +118,7 @@ public class Schedulerv2 implements Runnable {
 			// Si l'entité est un post, on l'ajoutee à postScore et à postId
 			// Sinon on l'ajoute à commentToPost
 			if (entity instanceof Post) {
-				postScore.put(((Post) entity).getId(), 10);
-				postId.put(((Post) entity).getId(), (Post) entity);
+				postIdMap.put(((Post) entity).getId(), (Post) entity);
 			} else {
 
 				long linkPost = ((Comment) entity).getLinkPost();
@@ -141,6 +140,7 @@ public class Schedulerv2 implements Runnable {
 						// commentaire fils -> post du commentaire parent
 						if (commentId == linkCom) {
 							commentToPost.put(commentId, entry.getValue());
+							break;
 						}
 					}
 				}
@@ -149,23 +149,21 @@ public class Schedulerv2 implements Runnable {
 			updateQueues(entity.getLastMAJDate());
 
 			// On trie les la map des scores
-			Helper.sortByValue(postScore);
-			
+			// Helper.sortByValue(postScore);
+			Helper.sortByValue(postIdMap);
+
 			// On récupère les meilleurs posts
 			int cpt = 0;
-			List<Post> bestPosts= new ArrayList<Post>();
-			for(Entry<Long, Integer> entry : postScore.entrySet()){
+			List<Post> bestPosts = new ArrayList<Post>();
+			for (Entry<Long, Post> entry : postIdMap.entrySet()) {
 				if (cpt >= 3)
 					break;
-				cpt++;
-				Long postId = entry.getKey();
-				Post post = this.postId.get(postId);
-				post.setScoreTotal(entry.getValue());
-				bestPosts.add(post);
+				bestPosts.add(entry.getValue());
 			}
 			String result = formatResult(entity.getDate(), bestPosts);
-			
-			// On push enfin le résultat dans la queue pour qu'il soit transmis au printer
+
+			// On push enfin le résultat dans la queue pour qu'il soit transmis
+			// au printer
 			try {
 				resultsQueue.put(result);
 			} catch (InterruptedException e) {
@@ -224,7 +222,8 @@ public class Schedulerv2 implements Runnable {
 			// passée en paramètre, on retire cette entité de la queue pour la
 			// placer à la
 			// tête de la suivante.
-			if (Days.daysBetween(currentEntityDate, date).getDays() > 24) {
+			if (Days.daysBetween(currentEntityDate, date).getDays() - nextElement.getNbDays() >= 1) {
+				
 				currentQueue.remove();
 				// Si l'objet nextElement n'est pas mort (ou sur le point de
 				// mourir),
@@ -243,8 +242,9 @@ public class Schedulerv2 implements Runnable {
 	}
 
 	/**
-	 *  Retourne true s'il faut continuer à traiter l'objet dans les queues.
-	 *  Faux sinon.
+	 * Retourne true s'il faut continuer à traiter l'objet dans les queues. Faux
+	 * sinon.
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -252,40 +252,52 @@ public class Schedulerv2 implements Runnable {
 		// Si l'entité est un post, on l'ajoute à la liste des posts en
 		// décrémentant son score de 1
 		if (entity instanceof Post) {
-			// Si le post à une valeur de 1, ça veut dire quil doit mourir, on le supprime.
+			// Si le post à une valeur de 1, ça veut dire quil doit mourir, on
+			// le supprime.
 			// Sinon, on décrémente son score de 1
-			if (postScore.get((Post) entity) == 1){
-				postScore.remove((Post) entity);
+			long postId = ((Post) entity).getId();
+			if (postIdMap.get(postId).getScoreTotal() == 1) {
+				postIdMap.remove(postId);
 				return false;
 			} else {
-				postScore.put(((Post) entity).getId(), postScore.get(entity) - 1);
+				Post postUpdated = postIdMap.get(postId);
+				postUpdated.decrementScore();
+				postUpdated.incrementNbDays();
+				postIdMap.put(postId, postUpdated);
 				return true;
 			}
-			
+
 		}
 		// Si l'entité est un commentaire, on va chercher le post correspondant
 		// au commentaire et on décrémente le post de 1
 		else {
 			Long postId = commentToPost.get(((Comment) entity).getCommentId());
-			// Si le post à une valeur de 1, il va mourir, on le supprime ainsi que son commentaire.
-			if (postScore.get(postId) == 1){
-				postScore.remove(postId);
+			// Si le post à une valeur de 1, il va mourir, on le supprime ainsi
+			// que son commentaire.
+			if (postIdMap.get(postId).getScoreTotal() == 1) {
+				postIdMap.remove(postId);
 				return false;
+
 			}
-			
-			// Si la map ne contient pas le post, c'est qu'il est déjà mort, on supprime donc le commentaire
-			else if (postScore.get(postId) == null){
+
+			// Si la map ne contient pas le post, c'est qu'il est déjà mort, on
+			// supprime donc le commentaire
+			else if (postIdMap.get(postId) == null) {
 				commentToPost.remove(((Comment) entity).getCommentId());
 				return false;
 			}
 			// Sinon, on décrémente la valeur du post de 1
 			else {
-				postScore.put(postId,  postScore.get(postId) -1);
+				//diminuer score comment
+				entity.incrementNbDays();
+				Post updatedPost = postIdMap.get(postId);
+				updatedPost.decrementScore();
+				postIdMap.put(postId, updatedPost);
 				return true;
 			}
 		}
 	}
-	
+
 	public String formatResult(String date, List<Post> bestPosts) {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(date);
@@ -312,6 +324,5 @@ public class Schedulerv2 implements Runnable {
 		System.out.println(strBuilder.toString());
 		return strBuilder.toString();
 	}
-	
 
 }
