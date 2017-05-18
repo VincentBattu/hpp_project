@@ -1,12 +1,14 @@
 package project;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.joda.time.DateTime;
@@ -15,6 +17,7 @@ import org.joda.time.Days;
 import model.Comment;
 import model.Entity;
 import model.Post;
+import model.Result;
 
 public class Schedulerv2 implements Runnable {
 
@@ -59,20 +62,36 @@ public class Schedulerv2 implements Runnable {
 	 * Queue envoyant les résultats au printer.
 	 */
 	private BlockingQueue<String> resultsQueue;
+	
+	private BlockingQueue<Result> resultsqueue;
+
+	/**
+	 * Liste qui contient les 3 meilleurs posts (id => post)
+	 */
+	private List<Post> top3;
+
+	/**
+	 * Le plus petit score du top 3
+	 */
+	private int scoreMin = 0;
 
 	/**
 	 * Poison pill de la queue result
 	 */
 	public static final String RESULT_POISON_PILL = "ça par exemple";
+	
+	public static final Result RESULT_POISON_PILL2 = new Result("", new ArrayList<>(1));
 
-	public Schedulerv2(BlockingQueue<Entity> entities, BlockingQueue<String> resultsQueue) {
+	public Schedulerv2(BlockingQueue<Entity> entities, BlockingQueue<String> resultsQueue, BlockingQueue<Result> resultqueue) {
 
 		this.entities = entities;
 		this.resultsQueue = resultsQueue;
+		this.resultsqueue = resultqueue;
 
 		commentToPost = new HashMap<>();
 		postIdMap = new HashMap<>();
 		postScore = new HashMap<>();
+		top3 = new Vector<>(3);
 
 		queue10 = new LinkedList<>();
 		queue9 = new LinkedList<>();
@@ -88,22 +107,31 @@ public class Schedulerv2 implements Runnable {
 
 	@Override
 	public void run() {
+		int cpt = 0;
+		long t1  = System.currentTimeMillis();
 		for (;;) {
 			// On retire la dernière entity envoyée par le parseur.
 			Entity entity = null;
 			try {
-				entity = entities.take();
+ 			entity = entities.take();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
+			cpt++;
+			if (cpt == 1000){
+				cpt = 0;
+				long t2 = System.currentTimeMillis();
+				System.out.println((t2-t1));
+				t1 = t2;
+			}
 			// Si l'on arrive à la fin du traitement (on rencontre la
 			// POISON_PILL)
 			if (entity == Parser.POISON_PILL) {
 				// On ajoute la poison pill à la queue result et on sort de la
 				// bouche
 				try {
-					resultsQueue.put(RESULT_POISON_PILL);
+					resultsqueue.put(RESULT_POISON_PILL2);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -118,7 +146,32 @@ public class Schedulerv2 implements Runnable {
 			// Si l'entité est un post, on l'ajoutee à postScore et à postId
 			// Sinon on l'ajoute à commentToPost
 			if (entity instanceof Post) {
-				postIdMap.put(((Post) entity).getId(), (Post) entity);
+				Post post = (Post) entity;
+				postIdMap.put(post.getId(), post);
+				if (top3.size() != 3) {
+					top3.add(post);
+					updateQueues(entity.getLastMAJDate());
+					Collections.sort(top3, Collections.reverseOrder());
+					//formatResult(entity.getDate(),top3);
+					
+				} else if (post.getScoreTotal() > scoreMin) {
+					updateTop3(post);
+					updateQueues(entity.getLastMAJDate());
+
+					Collections.sort(top3, Collections.reverseOrder());
+					
+					//formatResult(entity.getDate(),top3);
+				} else if (post.getScoreTotal() == scoreMin) {
+					if (post.compareTo(top3.get(2)) == 1) {
+						updateTop3(post);
+						updateQueues(entity.getLastMAJDate());
+
+						Collections.sort(top3, Collections.reverseOrder());
+						
+						//formatResult(entity.getDate(),top3);
+					}
+				}
+				scoreMin = top3.get(top3.size()-1).getScoreTotal();
 			} else {
 
 				long linkPost = ((Comment) entity).getLinkPost();
@@ -126,8 +179,34 @@ public class Schedulerv2 implements Runnable {
 				// faire la correspondance
 				// facilement
 				if (linkPost != -1) {
-					commentToPost.put(((Comment) entity).getCommentId(), linkPost);
-				}
+					long commentId = ((Comment) entity).getCommentId();
+					commentToPost.put(commentId, linkPost);
+					Post post = postIdMap.get(linkPost);
+					post.addCommenter(((Comment) entity).getUserId());
+					postIdMap.put(linkPost, post);
+					if (top3.size() != 3) {
+						top3.add(post);
+						updateQueues(entity.getLastMAJDate());
+						Collections.sort(top3, Collections.reverseOrder());
+						formatResult(entity.getDate(),top3);
+					} else if (post.getScoreTotal() > scoreMin) {
+						updateTop3(post);
+						updateQueues(entity.getLastMAJDate());
+
+						Collections.sort(top3, Collections.reverseOrder());
+						
+						//formatResult(entity.getDate(),top3);
+					} else if (post.getScoreTotal() == scoreMin) {
+						if (post.compareTo(top3.get(2)) == 1) {
+							updateTop3(post);
+							updateQueues(entity.getLastMAJDate());
+
+							Collections.sort(top3, Collections.reverseOrder());
+							
+							//formatResult(entity.getDate(),top3);
+						}
+					}
+					scoreMin = top3.get(top3.size()-1).getScoreTotal();				}
 				// Sinon on doit parcourir notre map de commentaires pour
 				// trouver le commentaire parent
 				else {
@@ -139,36 +218,43 @@ public class Schedulerv2 implements Runnable {
 						// relation
 						// commentaire fils -> post du commentaire parent
 						if (commentId == linkCom) {
-							commentToPost.put(commentId, entry.getValue());
+							long postId = entry.getValue();
+							commentToPost.put(commentId, postId);
+							Post post = postIdMap.get(postId);
+							post.addCommenter(((Comment) entity).getUserId());
+							postIdMap.put(postId, post);
+							if (top3.size() != 3) {
+								top3.add(post);
+								updateQueues(entity.getLastMAJDate());
+
+								Collections.sort(top3, Collections.reverseOrder());
+								
+								//formatResult(entity.getDate(),top3);
+							} else if (post.getScoreTotal() > scoreMin) {
+								updateTop3(post);
+								updateQueues(entity.getLastMAJDate());
+
+								Collections.sort(top3, Collections.reverseOrder());
+								
+								//formatResult(entity.getDate(),top3);
+							} else if (post.getScoreTotal() == scoreMin) {
+								if (post.compareTo(top3.get(2)) == 1) {
+									updateTop3(post);
+									updateQueues(entity.getLastMAJDate());
+
+									Collections.sort(top3, Collections.reverseOrder());
+									
+									//formatResult(entity.getDate(),top3);
+								}
+							}
+							scoreMin = top3.get(top3.size()-1).getScoreTotal();
 							break;
 						}
 					}
 				}
 			}
 
-			updateQueues(entity.getLastMAJDate());
-
-			// On trie les la map des scores
-			// Helper.sortByValue(postScore);
-			Helper.sortByValue(postIdMap);
-
-			// On récupère les meilleurs posts
-			int cpt = 0;
-			List<Post> bestPosts = new ArrayList<Post>();
-			for (Entry<Long, Post> entry : postIdMap.entrySet()) {
-				if (cpt >= 3)
-					break;
-				bestPosts.add(entry.getValue());
-			}
-			String result = formatResult(entity.getDate(), bestPosts);
-
-			// On push enfin le résultat dans la queue pour qu'il soit transmis
-			// au printer
-			try {
-				resultsQueue.put(result);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			
 		}
 
 	}
@@ -223,7 +309,7 @@ public class Schedulerv2 implements Runnable {
 			// placer à la
 			// tête de la suivante.
 			if (Days.daysBetween(currentEntityDate, date).getDays() - nextElement.getNbDays() >= 1) {
-				
+
 				currentQueue.remove();
 				// Si l'objet nextElement n'est pas mort (ou sur le point de
 				// mourir),
@@ -272,23 +358,23 @@ public class Schedulerv2 implements Runnable {
 		// au commentaire et on décrémente le post de 1
 		else {
 			Long postId = commentToPost.get(((Comment) entity).getCommentId());
+			// Si la map ne contient pas le post, c'est qu'il est déjà mort, on
+			// supprime donc le commentaire
+			if (postIdMap.get(postId) == null) {
+				commentToPost.remove(((Comment) entity).getCommentId());
+				return false;
+			}
+
 			// Si le post à une valeur de 1, il va mourir, on le supprime ainsi
 			// que son commentaire.
-			if (postIdMap.get(postId).getScoreTotal() == 1) {
+
+			else if (postIdMap.get(postId).getScoreTotal() == 1) {
 				postIdMap.remove(postId);
 				return false;
 
 			}
-
-			// Si la map ne contient pas le post, c'est qu'il est déjà mort, on
-			// supprime donc le commentaire
-			else if (postIdMap.get(postId) == null) {
-				commentToPost.remove(((Comment) entity).getCommentId());
-				return false;
-			}
 			// Sinon, on décrémente la valeur du post de 1
 			else {
-				//diminuer score comment
 				entity.incrementNbDays();
 				Post updatedPost = postIdMap.get(postId);
 				updatedPost.decrementScore();
@@ -298,7 +384,23 @@ public class Schedulerv2 implements Runnable {
 		}
 	}
 
+	private void updateTop3(Post post) {
+		long idPost = post.getId();
+
+		if (idPost == top3.get(0).getId()) {
+			top3.add(0, post);
+		} else if (idPost == top3.get(1).getId()) {
+			top3.add(1, post);
+		} else if (idPost == top3.get(2).getId()) {
+			top3.add(2, post);
+		} else {
+			top3.remove(2);
+			top3.add(post);
+		}
+	}
+
 	public String formatResult(String date, List<Post> bestPosts) {
+		
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(date);
 		for (Post post : bestPosts) {
@@ -312,17 +414,9 @@ public class Schedulerv2 implements Runnable {
 			strBuilder.append(post.getNbCommenter());
 		}
 		for (int i = 0; i < 3 - bestPosts.size(); i++) {
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
-			strBuilder.append(',');
-			strBuilder.append('-');
+			strBuilder.append(",-,-,-,-");
 		}
-		System.out.println(strBuilder.toString());
-		return strBuilder.toString();
+		return strBuilder.toString(); 
 	}
 
 }

@@ -1,7 +1,9 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -9,7 +11,7 @@ import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class Post implements Comparable<Post>, Entity  {
+public class Post implements Comparable<Post>, Entity {
 
 	private List<Comment> comments;
 
@@ -27,6 +29,13 @@ public class Post implements Comparable<Post>, Entity  {
 
 	private int nbCommenter;
 
+	/**
+	 * Map qui contient l'id des personnes ayant commenté ce post. La valeur est
+	 * factice (int =0), uniquement là pour profiter du temps d'accès constant
+	 * d'une map.
+	 */
+	private Map<Long, Integer> idsCommenters;
+
 	private String userName;
 
 	private boolean isDead = false;
@@ -38,6 +47,7 @@ public class Post implements Comparable<Post>, Entity  {
 	private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'");
 
 	public Post(String timeStamp, long idPost, long userId, String nameUser) {
+		this.idsCommenters = new HashMap<>();
 		this.date = timeStamp;
 		this.creationDate = formatter.withZone(DateTimeZone.UTC).parseDateTime(timeStamp);
 		this.id = idPost;
@@ -98,12 +108,20 @@ public class Post implements Comparable<Post>, Entity  {
 		this.lastMAJDate = localDateTime;
 
 	}
-	
-	public void decrementScore(){
-		this.scoreTotal -=1;
+
+	public void addCommenter(long idCommenters) {
+		if (idsCommenters.get(idCommenters) == null) {
+			idsCommenters.put(idCommenters, 0);
+			nbCommenter++;
+		}
+		scoreTotal += 10;
 	}
-	
-	public void incrementNbDays(){
+
+	public void decrementScore() {
+		this.scoreTotal -= 1;
+	}
+
+	public void incrementNbDays() {
 		this.nbDays += 1;
 	}
 
@@ -150,12 +168,12 @@ public class Post implements Comparable<Post>, Entity  {
 	public DateTime getCreationDate() {
 		return creationDate;
 	}
-	
-	public void setScoreTotal(int scoreTotal){
+
+	public void setScoreTotal(int scoreTotal) {
 		this.scoreTotal = scoreTotal;
 	}
-	
-	public int getNbDays(){
+
+	public int getNbDays() {
 		return nbDays;
 	}
 
@@ -183,7 +201,6 @@ public class Post implements Comparable<Post>, Entity  {
 		}
 	}
 
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -197,7 +214,5 @@ public class Post implements Comparable<Post>, Entity  {
 			return false;
 		return true;
 	}
-	
-	
 
 }

@@ -1,5 +1,6 @@
 package project;
 
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,14 +26,13 @@ public class Printer implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
 		File file =  new File(path) ;
 		OutputStream os = null;
 		String Newligne=System.getProperty("line.separator"); 
 		
 		try {
 			 os = new FileOutputStream(file);
-			DataOutputStream dos =  new DataOutputStream(os) ; 
+			DataOutputStream dos =  new DataOutputStream(new BufferedOutputStream(os)) ; 
 			
 			try {
 				String line = bufferQueue.take();
