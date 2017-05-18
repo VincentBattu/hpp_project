@@ -32,7 +32,7 @@ public class Printer implements Runnable {
 		
 		try {
 			 os = new FileOutputStream(file);
-			DataOutputStream dos =  new DataOutputStream(new BufferedOutputStream(os)) ; 
+			DataOutputStream dos =  new DataOutputStream(os); 
 			
 			try {
 				String line = bufferQueue.take();
@@ -56,7 +56,7 @@ public class Printer implements Runnable {
 		} finally{
 			try {
 				os.close();
-				System.out.println("FIN");
+				System.out.println("FIN écriture");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

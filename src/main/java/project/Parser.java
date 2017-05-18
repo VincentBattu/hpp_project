@@ -92,7 +92,7 @@ public class Parser implements Runnable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.out.println("Fin parseur");
+				//TODO log fin parsing
 				break;
 			}
 
