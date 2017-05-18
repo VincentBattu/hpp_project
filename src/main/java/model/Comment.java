@@ -1,11 +1,7 @@
 package model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -43,20 +39,6 @@ public class Comment implements Entity{
 		this.lastMAJDate = this.creationDate;
 		this.linkCom = linkCom;
 		this.linkPost = linkPost;
-	}
-
-	public void updateTime(DateTime currentTime) {
-
-		int temp = Days.daysBetween(creationDate, currentTime).getDays() - nbDays;
-		if (temp >= 1) {
-			score -= temp;
-			nbDays += temp;
-
-		} 
-		if (score < 0)
-			score = 0;
-		this.lastMAJDate = currentTime;
-
 	}
 
 	public DateTime getLastMAJDate() {
