@@ -12,11 +12,6 @@ import org.junit.Test;
 import project.Manager;
 
 
-/*
- * Test abhérrant !!
- * Commentaire créé à la milliseconde près du post
- * donc on veut l'ajouter au post avant que ce dernier soit créer
- */
 
 public class TestQ1Case4 {
 

@@ -11,6 +11,10 @@ import org.junit.Test;
 
 import project.Manager;
 
+/**
+ * Erreur dans le fichier expected. Affichage du top 3 (ligne 2) alors que l'ordre n'est pas modifié.
+ *
+ */
 public class Q1PostExpiredComment2Test {
 
 	@SuppressWarnings("resource")

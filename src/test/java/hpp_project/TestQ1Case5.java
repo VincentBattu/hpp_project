@@ -11,6 +11,10 @@ import org.junit.Test;
 
 import project.Manager;
 
+/**
+ * Passe pas car le fichier expected affiche la mort des deux posts et non le top à un événement donné.
+ *
+ */
 public class TestQ1Case5 {
 
 	@SuppressWarnings("resource")

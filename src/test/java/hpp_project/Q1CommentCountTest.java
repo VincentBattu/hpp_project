@@ -12,7 +12,7 @@ import org.junit.Test;
 import project.Manager;
 
 /*
- * Normal de pas passer : le top 3 n'ai pas modifié par l'ajout 
+ * Normal de pas passer : le top 3 n'est pas modifié par l'ajout 
  * de commentaire au seul post créé donc on n'écrit pas le top3 dans le fichier
  */
 

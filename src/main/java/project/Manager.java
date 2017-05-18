@@ -43,7 +43,7 @@ public class Manager {
 
 	public static void main(String[] args) {
 		long t1 = System.currentTimeMillis();
-		new Manager("data/postsRed.dat", "data/commentsRed.dat", "data/result.txt");		
+		new Manager("data/posts.dat", "data/comments.dat", "data/result.txt");		
 		
 
 		System.out.println("Temps exécution : " + (System.currentTimeMillis() - t1) + "ms");

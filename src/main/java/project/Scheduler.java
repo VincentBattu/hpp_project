@@ -152,30 +152,29 @@ public class Scheduler implements Runnable {
 				// Sinon, on regarde le plus petit score du top 3,
 				// si on est supérieur au plus petit score, on ajoute
 				else if (post.getScoreTotal() > scoreMin) {
-					updateTop3(post, entity.getLastMAJDate());
-
-					try {
-						resultsQueue.put(formatResult(entity.getDate(), top3));
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					;
-				}
-				// Dans le cas où notre post possède un score égal au score
-				// minimum du top 3
-				// On compatre les post avec leur date de création.
-				else if (post.getScoreTotal() == scoreMin) {
-					if (post.compareTo(top3.get(2)) == 1) {
-						updateTop3(post, entity.getLastMAJDate());
-
+					if (updateTop3(post, entity.getLastMAJDate())) {
 						try {
 							resultsQueue.put(formatResult(entity.getDate(), top3));
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						;
+					}
+
+				}
+				// Dans le cas où notre post possède un score égal au score
+				// minimum du top 3
+				// On compatre les post avec leur date de création.
+				else if (post.getScoreTotal() == scoreMin) {
+					if (post.compareTo(top3.get(2)) == 1) {
+						if (updateTop3(post, entity.getLastMAJDate())) {
+							try {
+								resultsQueue.put(formatResult(entity.getDate(), top3));
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 					}
 				}
 				scoreMin = top3.get(top3.size() - 1).getScoreTotal();
@@ -189,40 +188,51 @@ public class Scheduler implements Runnable {
 					long commentId = ((Comment) entity).getCommentId();
 					commentToPost.put(commentId, linkPost);
 					Post post = postIdMap.get(linkPost);
-					post.addCommenter(((Comment) entity).getUserId());
-					postIdMap.put(linkPost, post);
-					if (top3.size() != 3) {
-						updateTop3(post, entity.getLastMAJDate());
-						try {
-							resultsQueue.put(formatResult(entity.getDate(), top3));
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+					// Si le post existe
+					if (post != null) {
+						post.addCommenter(((Comment) entity).getUserId());
+						postIdMap.put(linkPost, post);
+						if (top3.size() != 3) {
+							if (updateTop3(post, entity.getLastMAJDate())) {
+								try {
+									resultsQueue.put(formatResult(entity.getDate(), top3));
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						} else if (post.getScoreTotal() > scoreMin) {
+							if (updateTop3(post, entity.getLastMAJDate())) {
+								try {
+									resultsQueue.put(formatResult(entity.getDate(), top3));
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						} else if (post.getScoreTotal() == scoreMin) {
+							if (post.compareTo(top3.get(2)) == 1) {
+								if (updateTop3(post, entity.getLastMAJDate())) {
+									try {
+										resultsQueue.put(formatResult(entity.getDate(), top3));
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}
 						}
-						;
-					} else if (post.getScoreTotal() > scoreMin) {
-						updateTop3(post, entity.getLastMAJDate());
-
-						try {
-							resultsQueue.put(formatResult(entity.getDate(), top3));
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						;
-					} else if (post.getScoreTotal() == scoreMin) {
-						if (post.compareTo(top3.get(2)) == 1) {
-							updateTop3(post, entity.getLastMAJDate());
-
+					} else {
+						if (updateTop3(post, entity.getLastMAJDate())) {
 							try {
 								resultsQueue.put(formatResult(entity.getDate(), top3));
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							;
 						}
 					}
+
 					scoreMin = top3.get(top3.size() - 1).getScoreTotal();
 				}
 				// Sinon on doit parcourir notre map de commentaires pour
@@ -237,41 +247,38 @@ public class Scheduler implements Runnable {
 						// commentaire fils -> post du commentaire parent
 						if (commentId == linkCom) {
 							long postId = entry.getValue();
-							commentToPost.put(commentId, postId);
+							commentToPost.put(((Comment) entity).getCommentId(), postId);
 							Post post = postIdMap.get(postId);
 							post.addCommenter(((Comment) entity).getUserId());
 							postIdMap.put(postId, post);
 							if (top3.size() != 3) {
-								updateTop3(post, entity.getLastMAJDate());
-
-								try {
-									resultsQueue.put(formatResult(entity.getDate(), top3));
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								;
-							} else if (post.getScoreTotal() > scoreMin) {
-								updateTop3(post, entity.getLastMAJDate());
-
-								try {
-									resultsQueue.put(formatResult(entity.getDate(), top3));
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								;
-							} else if (post.getScoreTotal() == scoreMin) {
-								if (post.compareTo(top3.get(2)) == 1) {
-									updateTop3(post, entity.getLastMAJDate());
-
+								if (updateTop3(post, entity.getLastMAJDate())) {
 									try {
 										resultsQueue.put(formatResult(entity.getDate(), top3));
 									} catch (InterruptedException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									;
+								}
+							} else if (post.getScoreTotal() > scoreMin) {
+								if (updateTop3(post, entity.getLastMAJDate())) {
+									try {
+										resultsQueue.put(formatResult(entity.getDate(), top3));
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							} else if (post.getScoreTotal() == scoreMin) {
+								if (post.compareTo(top3.get(2)) == 1) {
+									if (updateTop3(post, entity.getLastMAJDate())) {
+										try {
+											resultsQueue.put(formatResult(entity.getDate(), top3));
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									}
 								}
 							}
 							scoreMin = top3.get(top3.size() - 1).getScoreTotal();
@@ -310,8 +317,9 @@ public class Scheduler implements Runnable {
 			if (nextElement == null)
 				return;
 			DateTime currentEntityDate = nextElement.getLastMAJDate();
-			if (Days.daysBetween(currentEntityDate, date).getDays() > 24) {
+			if (Days.daysBetween(currentEntityDate, date).getDays() - nextElement.getNbDays() >= 1) {
 				queue1.remove();
+				updateScore(nextElement);
 
 			} else {
 				return;
@@ -419,14 +427,40 @@ public class Scheduler implements Runnable {
 	 */
 	private boolean updateTop3(Post post, DateTime dateTime) {
 
-		boolean isChanged = false;
+		List<Long> idsPreviousTop = new ArrayList<Long>(3);
+
 		updateQueues(dateTime);
+
+		if (post == null) {
+			for (int i = 0; i < top3.size(); i++) {
+				idsPreviousTop.add(top3.get(i).getId());
+				if (postIdMap.get(top3.get(i).getId()) == null) {
+					top3.remove(i);
+				}
+			}
+			Collections.sort(top3, Collections.reverseOrder());
+			if (idsPreviousTop.size() != top3.size()) {
+				return true;
+			} else {
+				for (int i = 0; i < top3.size(); i++) {
+					if (idsPreviousTop.get(i) != top3.get(i).getId()) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
 
 		long idPost = post.getId();
 		int size = top3.size();
+
 		// Si la liste est de taille 3. On n'imlémente pas de boucle ici
 		// pour profiter au miieux du prefetch du porcesseur.
 		if (size == 3) {
+			for (int i = 0; i < size; i++) {
+				idsPreviousTop.add(top3.get(i).getId());
+			}
+
 			if (idPost == top3.get(0).getId()) {
 				top3.set(0, post);
 			} else if (idPost == top3.get(1).getId()) {
@@ -436,30 +470,50 @@ public class Scheduler implements Runnable {
 			} else {
 				top3.remove(2);
 				top3.add(post);
-				isChanged = true;
 			}
+			Collections.sort(top3, Collections.reverseOrder());
+			return !((top3.get(0).getId() == idsPreviousTop.get(0)) && (top3.get(1).getId() == idsPreviousTop.get(1))
+					&& (top3.get(2).getId() == idsPreviousTop.get(2)));
 		}
 		// Sinon, la liste est de taille inférieur à 3
 		else {
 			boolean found = false;
 			for (int i = 0; i < size; i++) {
 				// Si la liste contient déjà l'élément, on le remplace
-				if (idPost == top3.get(i).getId()) {
-					top3.set(i, post);
-					found = true;
-					break;
+				idsPreviousTop.add(top3.get(i).getId());
+				if (postIdMap.get(top3.get(i).getId()) != null) {
+					if (idPost == top3.get(i).getId()) {
+						top3.set(i, post);
+						found = true;
+					}
+				} else {
+					top3.remove(i);
+					size--;
 				}
 
 			}
 			// Si on ne l'a pas trouvé, on l'ajoute
 			if (!found) {
 				top3.add(post);
-				isChanged = true;
-			}
-		}
+				Collections.sort(top3, Collections.reverseOrder());
+				return true;
 
-		Collections.sort(top3, Collections.reverseOrder());
-		return isChanged;
+			}
+			Collections.sort(top3, Collections.reverseOrder());
+			if (idsPreviousTop.size() != top3.size()) {
+				return true;
+			} else {
+				for (int i = 0; i < size; i++) {
+					if (idsPreviousTop.get(i) != top3.get(i).getId()) {
+						return true;
+					}
+				}
+			}
+
+			if (size == 0)
+				return true;
+			return false;
+		}
 
 	}
 
@@ -480,7 +534,6 @@ public class Scheduler implements Runnable {
 		for (int i = 0; i < 3 - bestPosts.size(); i++) {
 			strBuilder.append(",-,-,-,-");
 		}
-		System.out.println(strBuilder.toString());
 		return strBuilder.toString();
 	}
 

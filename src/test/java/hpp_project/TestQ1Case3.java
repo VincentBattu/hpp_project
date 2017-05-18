@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import project.Manager;
 
-/*Test ne passe pas mais normal avec notre choix de remplissage
- * du top 3 lors d'arrivée à la même date pour deux postes différentss
+/**
+ * Post commenté à l'instant de son arrivée => impossible (test passe pas)
  */
 
 public class TestQ1Case3 {

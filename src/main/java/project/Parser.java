@@ -116,7 +116,7 @@ public class Parser implements Runnable {
 				}
 
 			}
-			if (lastPostDate.isAfter(lastCommentDate)) {
+			else if (lastPostDate.isAfter(lastCommentDate)) {
 				if (listComment.get(0) != POISON_PILL_COMMENT) {
 					Entity comment = listComment.remove(0);
 					try {
@@ -135,6 +135,24 @@ public class Parser implements Runnable {
 					}
 				}
 
+			} else {
+				if (listPost.get(0) != POISON_PILL_POST) {
+					Entity post = listPost.remove(0);
+					try {
+						queue.put(post);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					Entity comment = listComment.remove(0);
+					try {
+						queue.put(comment);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 
