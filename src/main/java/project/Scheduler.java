@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -67,6 +69,8 @@ public class Scheduler implements Runnable {
 	 * Le plus petit score du top 3
 	 */
 	private int scoreMin = 0;
+	
+	public static AtomicLong t3 = new AtomicLong();
 
 	/**
 	 * Poison pill de la queue result
@@ -97,7 +101,9 @@ public class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
-
+//		long t1 = System.currentTimeMillis();
+//		int cpt = 0;
+//		int nbEntities =0;
 		for (;;) {
 			// On retire la dernière entity envoyée par le parseur.
 			Entity entity = null;
@@ -106,7 +112,17 @@ public class Scheduler implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
+//			t3.set(System.nanoTime());
+//			cpt++;
+//			nbEntities++;
+//			if (cpt == 100000){
+//				long t2 = System.currentTimeMillis();
+//				System.out.println(t2-t1);
+//				t1=t2;
+//				cpt=0;
+//			}
+			
+			
 			// Si l'on arrive à la fin du traitement (on rencontre la
 			// POISON_PILL)
 			if (entity == Parser.POISON_PILL) {
@@ -114,6 +130,7 @@ public class Scheduler implements Runnable {
 				// bouche
 				try {
 					resultsQueue.put(RESULT_POISON_PILL);
+					//System.out.println(nbEntities);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -184,6 +201,7 @@ public class Scheduler implements Runnable {
 					// Si le post existe
 					if (post != null) {
 						post.addCommenter(((Comment) entity).getUserId());
+						post.addComments(commentId);
 						postIdMap.put(linkPost, post);
 						if (top3.size() != 3) {
 							if (updateTop3(post, entity.getLastMAJDate())) {
@@ -228,8 +246,7 @@ public class Scheduler implements Runnable {
 
 					scoreMin = top3.get(top3.size() - 1).getScoreTotal();
 				}
-				// Sinon on doit parcourir notre map de commentaires pour
-				// trouver le commentaire parent
+				// Sinon, on cherche le commentaire parent
 				else {
 					long linkCom = ((Comment) entity).getLinkCom();
 
@@ -238,6 +255,7 @@ public class Scheduler implements Runnable {
 						commentToPost.put(((Comment) entity).getCommentId(), postId);
 						Post post = postIdMap.get(postId);
 						post.addCommenter(((Comment) entity).getUserId());
+						post.addComments(((Comment) entity).getCommentId());
 						postIdMap.put(postId, post);
 						if (top3.size() != 3) {
 							if (updateTop3(post, entity.getLastMAJDate())) {
@@ -359,11 +377,16 @@ public class Scheduler implements Runnable {
 		// décrémentant son score de 1
 		if (entity instanceof Post) {
 			// Si le post à une valeur de 1, ça veut dire quil doit mourir, on
-			// le supprime.
+			// le supprime et on retirer tous les commentaires qui lui correspondaient
 			// Sinon, on décrémente son score de 1
 			long postId = ((Post) entity).getId();
 			if (postIdMap.get(postId).getScoreTotal() == 1) {
+				List<Long> commentsIds = postIdMap.get(postId).getIdsComments();
+				for (Long id : commentsIds){
+					commentToPost.remove(id);
+				}
 				postIdMap.remove(postId);
+				
 				return false;
 			} else {
 				Post postUpdated = postIdMap.get(postId);
@@ -390,6 +413,7 @@ public class Scheduler implements Runnable {
 
 			else if (postIdMap.get(postId).getScoreTotal() == 1) {
 				postIdMap.remove(postId);
+				commentToPost.remove(((Comment) entity).getCommentId());
 				return false;
 
 			}

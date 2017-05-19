@@ -1,13 +1,15 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 
 public class Post implements Comparable<Post>, Entity {
 
@@ -22,6 +24,12 @@ public class Post implements Comparable<Post>, Entity {
 	private long userID;
 
 	private int nbCommenter;
+	
+	/**
+	 * Liste des ids des commentaires du post, utile lors de la mort
+	 * du post pour supprimer ces commentaires
+	 */
+	private List<Long> idsComments;
 
 	/**
 	 * Map qui contient l'id des personnes ayant commenté ce post. La valeur est
@@ -48,6 +56,7 @@ public class Post implements Comparable<Post>, Entity {
 		this.userName = nameUser;
 		this.nbCommenter = 0;
 		this.lastMAJDate = this.creationDate;
+		this.idsComments = new ArrayList<>();
 	}
 
 	public void addCommenter(long idCommenters) {
@@ -105,6 +114,14 @@ public class Post implements Comparable<Post>, Entity {
 
 	public int getNbDays() {
 		return nbDays;
+	}
+	
+	public void addComments(long idComment){
+		idsComments.add(idComment);
+	}
+	
+	public List<Long> getIdsComments(){
+		return idsComments;
 	}
 
 	@Override

@@ -40,6 +40,7 @@ public class Printer implements Runnable {
 					try {
 						dos.write(line.getBytes(Charset.forName("UTF-8")));
 						dos.write(Newligne.getBytes(Charset.forName("UTF-8")));
+						//System.out.println(System.nanoTime() - Scheduler.t3.get());
 						line = bufferQueue.take();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
