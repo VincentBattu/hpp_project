@@ -96,8 +96,7 @@ public class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
-		int cpt = 0;
-		long t1 = System.currentTimeMillis();
+
 		for (;;) {
 			// On retire la dernière entity envoyée par le parseur.
 			Entity entity = null;
@@ -107,13 +106,6 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 
-			cpt++;
-			if (cpt == 1000) {
-				cpt = 0;
-				long t2 = System.currentTimeMillis();
-				System.out.println((t2 - t1));
-				t1 = t2;
-			}
 			// Si l'on arrive à la fin du traitement (on rencontre la
 			// POISON_PILL)
 			if (entity == Parser.POISON_PILL) {

@@ -8,7 +8,7 @@ import org.joda.time.DateTime;
  *
  */
 public interface Entity {
-
+	
 	public DateTime getLastMAJDate();
 	public String getDate();
 	public int getNbDays();

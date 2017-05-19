@@ -13,7 +13,7 @@ public class Manager {
 	private Scheduler scheduler;
 
 	private BlockingQueue<Entity> objectQueue = new LinkedBlockingQueue<>(100);
-	private BlockingQueue<String> resultQueue = new LinkedBlockingQueue<String>(1000);
+	private BlockingQueue<String> resultQueue = new LinkedBlockingQueue<String>(100);
 	private BlockingQueue<Result> resultqueue = new LinkedBlockingQueue<>(100);
 
 	public Manager(String postsPath, String commentsPath, String resultPath) {
