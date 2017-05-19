@@ -1,5 +1,6 @@
 package project;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,16 +83,16 @@ public class Scheduler implements Runnable {
 		postIdMap = new HashMap<>();
 		top3 = new Vector<>(3);
 
-		queue10 = new LinkedList<>();
-		queue9 = new LinkedList<>();
-		queue8 = new LinkedList<>();
-		queue7 = new LinkedList<>();
-		queue6 = new LinkedList<>();
-		queue5 = new LinkedList<>();
-		queue4 = new LinkedList<>();
-		queue3 = new LinkedList<>();
-		queue2 = new LinkedList<>();
-		queue1 = new LinkedList<>();
+		queue10 = new ArrayDeque<>(100);
+		queue9 = new ArrayDeque<>(100);
+		queue8 = new ArrayDeque<>(100);
+		queue7 = new ArrayDeque<>(100);
+		queue6 = new ArrayDeque<>(100);
+		queue5 = new ArrayDeque<>(100);
+		queue4 = new ArrayDeque<>(100);
+		queue3 = new ArrayDeque<>(100);
+		queue2 = new ArrayDeque<>(100);
+		queue1 = new ArrayDeque<>(100);
 	}
 
 	@Override
@@ -232,50 +233,43 @@ public class Scheduler implements Runnable {
 				else {
 					long linkCom = ((Comment) entity).getLinkCom();
 
-					for (Entry<Long, Long> entry : commentToPost.entrySet()) {
-						Long commentId = entry.getKey();
-						// Si on trouve le commentaire parent, on définit la
-						// relation
-						// commentaire fils -> post du commentaire parent
-						if (commentId == linkCom) {
-							long postId = entry.getValue();
-							commentToPost.put(((Comment) entity).getCommentId(), postId);
-							Post post = postIdMap.get(postId);
-							post.addCommenter(((Comment) entity).getUserId());
-							postIdMap.put(postId, post);
-							if (top3.size() != 3) {
+					if(commentToPost.get(linkCom) != null){
+						long postId = commentToPost.get(linkCom);
+						commentToPost.put(((Comment) entity).getCommentId(), postId);
+						Post post = postIdMap.get(postId);
+						post.addCommenter(((Comment) entity).getUserId());
+						postIdMap.put(postId, post);
+						if (top3.size() != 3) {
+							if (updateTop3(post, entity.getLastMAJDate())) {
+								try {
+									resultsQueue.put(formatResult(entity.getDate(), top3));
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						} else if (post.getScoreTotal() > scoreMin) {
+							if (updateTop3(post, entity.getLastMAJDate())) {
+								try {
+									resultsQueue.put(formatResult(entity.getDate(), top3));
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						} else if (post.getScoreTotal() == scoreMin) {
+							if (post.compareTo(top3.get(2)) == 1) {
 								if (updateTop3(post, entity.getLastMAJDate())) {
 									try {
 										resultsQueue.put(formatResult(entity.getDate(), top3));
 									} catch (InterruptedException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-									}
-								}
-							} else if (post.getScoreTotal() > scoreMin) {
-								if (updateTop3(post, entity.getLastMAJDate())) {
-									try {
-										resultsQueue.put(formatResult(entity.getDate(), top3));
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								}
-							} else if (post.getScoreTotal() == scoreMin) {
-								if (post.compareTo(top3.get(2)) == 1) {
-									if (updateTop3(post, entity.getLastMAJDate())) {
-										try {
-											resultsQueue.put(formatResult(entity.getDate(), top3));
-										} catch (InterruptedException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
 									}
 								}
 							}
-							scoreMin = top3.get(top3.size() - 1).getScoreTotal();
-							break;
 						}
+						scoreMin = top3.get(top3.size() - 1).getScoreTotal();
 					}
 				}
 			}
